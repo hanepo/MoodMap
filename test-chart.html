@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test Mood Chart</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+    .chart-canvas-container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(123, 40, 125, 0.1);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .chart-title-main {
+      color: #330C2F;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chart-canvas-container">
+    <h3 class="chart-title-main">📈 Mood Trends Over Time</h3>
+
+    <!-- CSS Line Chart -->
+    <div style="position: relative; width: 90%; height: 280px; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; padding: 30px 40px 40px 50px; margin: 20px 0;">
+      <!-- Y-axis labels -->
+      <div style="position: absolute; left: 30px; top: 30px; bottom: 40px; display: flex; flex-direction: column; justify-content: space-between; font-size: 9px; color: #6B7280;">
+        <div>10</div>
+        <div>9</div>
+        <div>8</div>
+        <div>7</div>
+        <div>6</div>
+        <div>5</div>
+        <div>4</div>
+        <div>3</div>
+        <div>2</div>
+        <div>1</div>
+        <div>0</div>
+      </div>
+
+      <!-- Grid lines -->
+      <div style="position: absolute; left: 50px; right: 40px; top: 30px; bottom: 40px;">
+        <div style="position: absolute; left: 0; right: 0; top: 0%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 10%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 20%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 30%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 40%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: #D1D5DB;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 60%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 70%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 80%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 90%; height: 1px; background: #F3F4F6;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 100%; height: 1px; background: #F3F4F6;"></div>
+      </div>
+
+      <!-- Chart area with SVG for lines -->
+      <svg style="position: absolute; left: 50px; right: 40px; top: 30px; bottom: 40px; width: calc(100% - 90px); height: calc(100% - 70px);" viewBox="0 0 1000 200" preserveAspectRatio="none">
+        <!-- Example data: scores of [7, 4, 8, 5, 9, 3, 6, 10, 5, 7, 2] -->
+        <!-- Convert to SVG coordinates (inverted Y) -->
+        <polyline
+          points="0,60 90,120 180,40 270,100 360,20 450,140 540,80 630,0 720,100 810,60 900,160"
+          fill="none"
+          stroke="#7B287D"
+          stroke-width="3"
+          opacity="0.8"
+        />
+        <!-- Fill area under line -->
+        <polygon
+          points="0,200 0,60 90,120 180,40 270,100 360,20 450,140 540,80 630,0 720,100 810,60 900,160 900,200"
+          fill="rgba(123, 40, 125, 0.1)"
+        />
+      </svg>
+
+      <!-- Data points -->
+      <div style="position: absolute; left: 50px; right: 40px; top: 30px; bottom: 40px; pointer-events: none;">
+        <!-- Point 1: score 7 (70% height = 30% from top) -->
+        <div style="position: absolute; left: 0%; top: 30%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #7B287D; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #7B287D; white-space: nowrap;">7</div>
+        </div>
+        <!-- Point 2: score 4 (40% height = 60% from top) -->
+        <div style="position: absolute; left: 9%; top: 60%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #F59E0B; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #F59E0B; white-space: nowrap;">4</div>
+        </div>
+        <!-- Point 3: score 8 (80% height = 20% from top) -->
+        <div style="position: absolute; left: 18%; top: 20%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #10B981; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #10B981; white-space: nowrap;">8</div>
+        </div>
+        <!-- Point 4: score 5 -->
+        <div style="position: absolute; left: 27%; top: 50%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #F59E0B; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #F59E0B; white-space: nowrap;">5</div>
+        </div>
+        <!-- Point 5: score 9 -->
+        <div style="position: absolute; left: 36%; top: 10%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #10B981; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #10B981; white-space: nowrap;">9</div>
+        </div>
+        <!-- Point 6: score 3 -->
+        <div style="position: absolute; left: 45%; top: 70%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #EF4444; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #EF4444; white-space: nowrap;">3</div>
+        </div>
+        <!-- Point 7: score 6 -->
+        <div style="position: absolute; left: 54%; top: 40%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #7B287D; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #7B287D; white-space: nowrap;">6</div>
+        </div>
+        <!-- Point 8: score 10 -->
+        <div style="position: absolute; left: 63%; top: 0%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #10B981; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #10B981; white-space: nowrap;">10</div>
+        </div>
+        <!-- Point 9: score 5 -->
+        <div style="position: absolute; left: 72%; top: 50%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #F59E0B; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #F59E0B; white-space: nowrap;">5</div>
+        </div>
+        <!-- Point 10: score 7 -->
+        <div style="position: absolute; left: 81%; top: 30%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #7B287D; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #7B287D; white-space: nowrap;">7</div>
+        </div>
+        <!-- Point 11: score 2 -->
+        <div style="position: absolute; left: 90%; top: 80%; transform: translate(-50%, -50%);">
+          <div style="width: 10px; height: 10px; background: #EF4444; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: bold; color: #EF4444; white-space: nowrap;">2</div>
+        </div>
+      </div>
+
+      <!-- X-axis labels -->
+      <div style="position: absolute; left: 50px; right: 40px; bottom: 25px; display: flex; justify-content: space-between; font-size: 8px; color: #6B7280;">
+        <div>Jan 13</div>
+        <div>Jan 14</div>
+        <div>Jan 15</div>
+        <div>Jan 16</div>
+        <div>Jan 17</div>
+        <div>Jan 18</div>
+        <div>Jan 19</div>
+        <div>Jan 20</div>
+        <div>Jan 21</div>
+        <div>Jan 22</div>
+        <div>Jan 23</div>
+      </div>
+
+      <!-- Axis titles -->
+      <div style="position: absolute; left: 15px; top: 200px; transform: rotate(-90deg); transform-origin: left center; font-size: 10px; font-weight: bold; color: #4B5563;">Mood Score</div>
+      <div style="position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; color: #4B5563;">Date</div>
+    </div>
+
+    <p style="color: #6B7280; font-size: 11px; margin-top: 15px; text-align: center;">
+      Tracking 11 mood entries over time. Trend: <strong>STABLE</strong>
+      <br><small style="font-size: 10px;">(Showing last 14 entries)</small>
+    </p>
+
+    <div style="background: #F9FAFB; padding: 15px; border-radius: 8px; margin-top: 15px;">
+      <p style="color: #4B5563; font-size: 11px; margin: 0 0 10px 0;">
+        <strong>Quick Stats:</strong>
+        Highest: 10/10 | Lowest: 2/10 | Average: 6.0/10
+      </p>
+      <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <div style="width: 12px; height: 12px; background: #10B981; border-radius: 50%; border: 2px solid #fff;"></div>
+          <span style="font-size: 10px; color: #6B7280;">High (8-10)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <div style="width: 12px; height: 12px; background: #7B287D; border-radius: 50%; border: 2px solid #fff;"></div>
+          <span style="font-size: 10px; color: #6B7280;">Good (6-7)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <div style="width: 12px; height: 12px; background: #F59E0B; border-radius: 50%; border: 2px solid #fff;"></div>
+          <span style="font-size: 10px; color: #6B7280;">Moderate (4-5)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <div style="width: 12px; height: 12px; background: #EF4444; border-radius: 50%; border: 2px solid #fff;"></div>
+          <span style="font-size: 10px; color: #6B7280;">Low (0-3)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 30px; color: #6B7280; font-size: 12px;">
+    <p>Open this file in your browser to preview how the chart looks.</p>
+    <p>If it looks good, it will work in the PDF!</p>
+  </div>
+</body>
+</html>

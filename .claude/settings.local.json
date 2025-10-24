@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm start)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npx tsc:*)",
+      "Bash(node -c:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx expo prebuild:*)",
+      "Bash(npm run android:*)",
+      "Bash(./gradlew clean:*)",
+      "Bash(npx expo start:*)",
+      "Bash(npx expo whoami)",
+      "Bash(cat:*)",
+      "Bash(timeout /t 3 /nobreak)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
