@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { signOut, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from 'firebase/auth';
-import { doc, updateDoc, collection, getDocs, query, orderBy, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, getDocs, query, orderBy, deleteDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 import { useApp } from '../contexts/AppContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -53,7 +53,27 @@ const SettingsScreen = () => {
     if (state.user?.phoneNumber) {
       setNewPhoneNumber(state.user.phoneNumber);
     }
+    // Load notification preference
+    loadNotificationPreference();
   }, [state.user]);
+
+  const loadNotificationPreference = async () => {
+    if (!state.user?.uid) return;
+
+    try {
+      const userRef = doc(db, 'users', state.user.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData?.preferences?.notificationsEnabled !== undefined) {
+          setNotificationsEnabled(userData.preferences.notificationsEnabled);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading notification preference:', error);
+    }
+  };
 
   const handleUpdateProfile = async () => {
     if (!newDisplayName.trim()) {
@@ -449,22 +469,6 @@ const SettingsScreen = () => {
               thumbColor={notificationsEnabled ? theme.colors.primary : '#f4f3f4'}
             />
           </View>
-
-          <View style={[styles.item, { backgroundColor: theme.colors.surface }]}>
-            <View style={styles.itemLeft}>
-              <Text style={styles.itemIcon}>🎨</Text>
-              <View style={styles.itemTextContainer}>
-                <Text style={[styles.itemText, { color: theme.colors.text }]}>Dark Mode</Text>
-                <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>{isDark ? 'Dark theme enabled' : 'Light theme enabled'}</Text>
-              </View>
-            </View>
-            <Switch
-              onValueChange={toggleTheme}
-              value={isDark}
-              trackColor={{ false: '#D1D5DB', true: '#B7C0EE' }}
-              thumbColor={isDark ? theme.colors.primary : '#f4f3f4'}
-            />
-          </View>
         </View>
 
         {/* Data & Privacy Section */}
@@ -719,24 +723,25 @@ const SettingsScreen = () => {
           <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
             <Text style={[styles.modalTitle, { color: theme.colors.text }]}>Email Preferences</Text>
 
-            <View style={{ marginBottom: 12 }}>
-              <Text style={[styles.modalLabel, { color: theme.colors.textSecondary }]}>News & Promotions</Text>
-              <Switch
-                value={emailPrefs.news}
-                onValueChange={(v) => setEmailPrefs(prev => ({ ...prev, news: v }))}
-                trackColor={{ false: '#D1D5DB', true: '#B7C0EE' }}
-                thumbColor={emailPrefs.news ? theme.colors.primary : '#f4f3f4'}
-              />
-            </View>
-
-            <View style={{ marginBottom: 12 }}>
-              <Text style={[styles.modalLabel, { color: theme.colors.textSecondary }]}>Product Updates</Text>
-              <Switch
-                value={emailPrefs.updates}
-                onValueChange={(v) => setEmailPrefs(prev => ({ ...prev, updates: v }))}
-                trackColor={{ false: '#D1D5DB', true: '#B7C0EE' }}
-                thumbColor={emailPrefs.updates ? theme.colors.primary : '#f4f3f4'}
-              />
+            <View style={styles.emailPrefsRow}>
+              <View style={styles.emailPrefItem}>
+                <Text style={[styles.modalLabel, { color: theme.colors.textSecondary }]}>News & Promotions</Text>
+                <Switch
+                  value={emailPrefs.news}
+                  onValueChange={(v) => setEmailPrefs(prev => ({ ...prev, news: v }))}
+                  trackColor={{ false: '#D1D5DB', true: '#B7C0EE' }}
+                  thumbColor={emailPrefs.news ? theme.colors.primary : '#f4f3f4'}
+                />
+              </View>
+              <View style={styles.emailPrefItem}>
+                <Text style={[styles.modalLabel, { color: theme.colors.textSecondary }]}>Product Updates</Text>
+                <Switch
+                  value={emailPrefs.updates}
+                  onValueChange={(v) => setEmailPrefs(prev => ({ ...prev, updates: v }))}
+                  trackColor={{ false: '#D1D5DB', true: '#B7C0EE' }}
+                  thumbColor={emailPrefs.updates ? theme.colors.primary : '#f4f3f4'}
+                />
+              </View>
             </View>
 
             <View style={styles.modalButtons}>
@@ -813,6 +818,34 @@ const SettingsScreen = () => {
                 <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>How do I delete my account?</Text>
                 <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
                   Go to Settings → Danger Zone → Delete Account. Please note this action is permanent and cannot be undone.
+                </Text>
+              </View>
+
+              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
+                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>Can I track multiple moods in one day?</Text>
+                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
+                  Yes! You can log your mood multiple times throughout the day. This helps you see how your mood changes and identify patterns or triggers.
+                </Text>
+              </View>
+
+              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
+                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>What are check-ins and how do they work?</Text>
+                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
+                  Daily check-ins help you build a habit of self-reflection. Simply tap on today's day in the calendar to mark it complete. Keep your streak going to stay motivated!
+                </Text>
+              </View>
+
+              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
+                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>How are task recommendations personalized?</Text>
+                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
+                  MoodMap analyzes your recent mood entries and suggests activities that match your current energy levels and emotional state. Tasks are tailored to help you feel better or maintain your positive mood.
+                </Text>
+              </View>
+
+              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
+                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>Is MoodMap free to use?</Text>
+                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
+                  Yes! MoodMap is completely free to use. All core features including mood tracking, task management, and analytics are available at no cost.
                 </Text>
               </View>
             </ScrollView>
@@ -1021,7 +1054,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 24,
     width: '100%',
-    maxWidth: 400
+    maxWidth: 450
   },
   modalTitle: {
     fontSize: 20,
@@ -1107,6 +1140,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     lineHeight: 20
+  },
+  emailPrefsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 20,
+    marginBottom: 20
+  },
+  emailPrefItem: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 10
   }
 });
 

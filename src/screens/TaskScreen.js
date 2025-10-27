@@ -221,18 +221,14 @@ const TaskScreen = ({ route }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tasks for You</Text>
-        <TouchableOpacity style={styles.menuButton}>
-          <View style={styles.menuDot} />
-          <View style={styles.menuDot} />
-          <View style={styles.menuDot} />
-        </TouchableOpacity>
+        <View style={styles.placeholder} />
       </View>
 
       <ScrollView style={styles.container}>
@@ -251,12 +247,10 @@ const TaskScreen = ({ route }) => {
         </View>
 
         <View style={styles.recommendationsSection}>
-          <View style={styles.recommendationsHeader}>
-            <Text style={styles.sectionTitle}>Your Recommended Tasks</Text>
-            <Text style={styles.sectionSubtitle}>
-              {recommendations.length} activities found
-            </Text>
-          </View>
+          <Text style={styles.sectionTitle}>Your Recommended Tasks</Text>
+          <Text style={styles.recommendationsCount}>
+            {recommendations.length} activities found
+          </Text>
           {renderContent()}
         </View>
 
@@ -318,19 +312,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  menuButton: {
-    flexDirection: 'column',
-    alignItems: 'center',
+  placeholder: {
     width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  menuDot: {
-    width: 5,
-    height: 5,
-    backgroundColor: '#333',
-    borderRadius: 2.5,
-    marginVertical: 1.5,
   },
   container: {
     flex: 1,
@@ -360,14 +343,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+    borderLeftWidth: 4,
+    borderLeftColor: '#7B287D',
   },
   moodSummaryBox: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
     borderRadius: 12,
     padding: 15,
-    borderStyle: 'dashed',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderWidth: 2,
+    borderColor: '#B7C0EE',
   },
   moodSummaryText: {
     fontSize: 16,
@@ -383,15 +367,11 @@ const styles = StyleSheet.create({
   recommendationsSection: {
     marginBottom: 30,
   },
-  recommendationsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15
-  },
-  sectionSubtitle: {
+  recommendationsCount: {
     fontSize: 14,
     color: '#6B7280',
+    marginBottom: 15,
+    marginTop: -10,
   },
   taskList: {
     marginBottom: 20,

@@ -28,11 +28,11 @@ const TaskEditorScreen = () => {
 
   // Mood categories matching your schema
   const moodOptions = [
-    { label: 'Happy', emoji: '😊', value: 'high' },
-    { label: 'Sad', emoji: '😢', value: 'low' },
-    { label: 'Neutral', emoji: '😐', value: 'medium' },
-    { label: 'Angry', emoji: '😠', value: 'low' },
-    { label: 'Calm', emoji: '😌', value: 'medium' },
+    { label: 'Happy', emoji: '😊', energyLevel: 'high' },
+    { label: 'Sad', emoji: '😢', energyLevel: 'low' },
+    { label: 'Neutral', emoji: '😐', energyLevel: 'medium' },
+    { label: 'Angry', emoji: '😠', energyLevel: 'low' },
+    { label: 'Calm', emoji: '😌', energyLevel: 'medium' },
   ];
 
   const categories = ['Mindfulness', 'Reflection', 'Physical', 'Social', 'Creative'];
@@ -199,14 +199,14 @@ const TaskEditorScreen = () => {
                 key={mood.label}
                 style={[
                   styles.moodItem,
-                  selectedMood === mood.value && styles.moodItemActive
+                  selectedMood === mood.label && styles.moodItemActive
                 ]}
-                onPress={() => setSelectedMood(mood.value)}
+                onPress={() => setSelectedMood(mood.label)}
               >
                 <Text style={styles.moodEmoji}>{mood.emoji}</Text>
                 <Text style={[
                   styles.moodLabel,
-                  selectedMood === mood.value && styles.moodLabelActive
+                  selectedMood === mood.label && styles.moodLabelActive
                 ]}>
                   {mood.label}
                 </Text>

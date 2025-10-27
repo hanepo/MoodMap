@@ -370,22 +370,6 @@ export default function LoginScreen({ navigation }) {
                   </View>
                 )}
               </TouchableOpacity>
-              {appleAvailable && (
-                <TouchableOpacity
-                  style={[styles.socialButton, styles.appleButton, appleLoading && styles.buttonDisabled]}
-                  onPress={onAppleSignIn}
-                  disabled={appleLoading}
-                >
-                  {appleLoading ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <View style={styles.socialButtonContent}>
-                      <Text style={styles.appleIcon}></Text>
-                      <Text style={styles.appleButtonText}>Apple</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              )}
             </View>
             {/* Sign Up Link */}
             <View style={styles.signUpContainer}>

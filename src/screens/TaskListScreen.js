@@ -163,8 +163,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    paddingTop: StatusBar.currentHeight || 40, // ✅ adds space below the status bar
+    borderBottomColor: '#eee'
   },
   backButton: {
     width: 40,

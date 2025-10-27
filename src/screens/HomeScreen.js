@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  ScrollView, 
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
   Alert,
   SafeAreaView,
   StyleSheet,
-  Image,
   Platform,
-  StatusBar
+  StatusBar,
+  Animated,
+  Dimensions
 } from 'react-native';
+
+const { width } = Dimensions.get('window');
 // Removed signOut import as it's not used directly here
 import { auth } from '../config/firebase'; // Keep auth if needed elsewhere later
 import { useApp } from '../contexts/AppContext';
@@ -31,13 +34,73 @@ export default function HomeScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Home'); // Keep track of active tab
   const [notificationsEnabled, setNotificationsEnabled] = useState(true); // Assuming default is true
 
+  // Animated values for wave effect
+  const wave1 = useRef(new Animated.Value(0)).current;
+  const wave2 = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     // Load check-ins when user is available
     if (state.user?.uid) {
       loadCheckIns();
-      // Potentially load notification preference from user profile in Firestore here
+      loadNotificationPreference();
     }
+    // Start wave animation
+    startWaveAnimation();
   }, [state.user]); // Rerun when user changes
+
+  const loadNotificationPreference = async () => {
+    if (!state.user?.uid) return;
+
+    try {
+      const { doc, getDoc } = await import('firebase/firestore');
+      const { db } = await import('../config/firebase');
+
+      const userRef = doc(db, 'users', state.user.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const notifEnabled = userData?.preferences?.notificationsEnabled ?? true;
+        setNotificationsEnabled(notifEnabled);
+      }
+    } catch (error) {
+      console.error('Error loading notification preference:', error);
+    }
+  };
+
+  const startWaveAnimation = () => {
+    // Wave 1 animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(wave1, {
+          toValue: 1,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wave1, {
+          toValue: 0,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Wave 2 animation (offset)
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(wave2, {
+          toValue: 1,
+          duration: 6000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wave2, {
+          toValue: 0,
+          duration: 6000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
 
   const loadCheckIns = async () => {
     if (!state.user?.uid) return;
@@ -58,13 +121,29 @@ export default function HomeScreen({ navigation }) {
     console.log('Navigate to Profile + Tasks Screen');
   };
 
-  const handleNotifications = () => {
-    // Placeholder - real implementation would update Firestore and state
-    setNotificationsEnabled(!notificationsEnabled);
-    Alert.alert(
-      'Notifications', 
-      `Notifications ${!notificationsEnabled ? 'enabled' : 'disabled'}`
-    );
+  const handleNotifications = async () => {
+    const newValue = !notificationsEnabled;
+    setNotificationsEnabled(newValue);
+
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('../config/firebase');
+
+      const userRef = doc(db, 'users', state.user.uid);
+      await updateDoc(userRef, {
+        'preferences.notificationsEnabled': newValue
+      });
+
+      Alert.alert(
+        'Notifications',
+        `Notifications ${newValue ? 'enabled' : 'disabled'}`
+      );
+    } catch (error) {
+      console.error('Error updating notification preference:', error);
+      // Revert on error
+      setNotificationsEnabled(!newValue);
+      Alert.alert('Error', 'Failed to update notification settings');
+    }
   };
 
   // --- Functions to get derived data from state ---
@@ -204,9 +283,19 @@ export default function HomeScreen({ navigation }) {
   const recentTasks = state.taskSummary || []; // Use summary from state
 
   const previewSupportResources = supportResources.slice(0, 2);
-  
+
   const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   const todayIndex = new Date().getDay(); // 0 = Sunday
+
+  const wave1TranslateY = wave1.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -20]
+  });
+
+  const wave2TranslateY = wave2.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 15]
+  });
 
   return (
     <View style={styles.outerContainer}>
@@ -222,27 +311,20 @@ export default function HomeScreen({ navigation }) {
             {/* ... (keep HeaderContainer JSX - profile pic, greeting, notifications) ... */}
             <View style={styles.headerContainer}>
               <TouchableOpacity style={styles.greetingContainer} onPress={handleProfileTasks}>
-                <Image 
-                  // Use a real placeholder or default image asset
-                  source={state.user?.photoURL ? { uri: state.user.photoURL } : require('../assets/icon.png')} 
-                  style={styles.profileImage}
-                />
+                <View style={styles.profileIconCircle}>
+                  <Text style={styles.profileIconEmoji}>👤</Text>
+                </View>
                 <View style={styles.userInfo}>
                   <Text style={styles.greetingText}>Hi,</Text>
                   <Text style={styles.userName} numberOfLines={1}>{state.user?.displayName || 'User'}!</Text>
                 </View>
-                {/* Removed menu icon from here as profile navigation is primary action */}
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.notificationContainer} 
+
+              <TouchableOpacity
+                style={styles.notificationContainer}
                 onPress={handleNotifications}
               >
-                <View style={[
-                  styles.notificationBell,
-                  // Add visual feedback based on state?
-                  // notificationsEnabled ? styles.notificationBellActive : null 
-                ]}>
+                <View style={styles.notificationBell}>
                   <Text style={styles.notificationIcon}>🔔</Text>
                   {notificationsEnabled && <View style={styles.notificationDot} />}
                 </View>
@@ -265,10 +347,28 @@ export default function HomeScreen({ navigation }) {
 
           {/* Main Content Area (Cards) */}
           <View style={styles.contentContainer}>
+            {/* Animated Wave Background for Content Area */}
+            <View style={styles.contentWaveContainer}>
+              <Animated.View
+                style={[
+                  styles.contentWave,
+                  styles.contentWave1,
+                  { transform: [{ translateY: wave1TranslateY }] }
+                ]}
+              />
+              <Animated.View
+                style={[
+                  styles.contentWave,
+                  styles.contentWave2,
+                  { transform: [{ translateY: wave2TranslateY }] }
+                ]}
+              />
+            </View>
+
             {/* Daily Check-In Card */}
             <View style={styles.card}>
-              <View style={styles.checkInHeader}>
-                <Text style={[styles.cardTitle, { marginBottom: 0 }]}>Daily Check-In</Text>
+              <View style={styles.checkInHeaderRow}>
+                <Text style={styles.sectionYellowTitle}>📅 Daily Check-In</Text>
                 {currentStreak > 0 && (
                   <View style={styles.streakBadge}>
                     <Text style={styles.streakIcon}>🔥</Text>
@@ -320,7 +420,9 @@ export default function HomeScreen({ navigation }) {
 
             {/* Mood Journey Card Grid */}
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Mood Journey</Text>
+              <View style={styles.sectionTitleWrapper}>
+                <Text style={styles.sectionYellowTitle}>🌟 Mood Journey</Text>
+              </View>
               <View style={styles.moodGrid}>
                 
                 {/* --- Card 1: Mood Today --- */}
@@ -395,11 +497,11 @@ export default function HomeScreen({ navigation }) {
 
             {/* Self-Care Resources Card (Keep existing structure, functionality to be added) */}
             <View style={styles.card}>
-              <TouchableOpacity 
-                style={styles.resourceHeader} 
+              <TouchableOpacity
+                style={styles.resourceHeader}
                 onPress={() => navigation.navigate('SelfCare')} // Link header to full screen
               >
-                <Text style={styles.cardTitle}>Self-Care Resources</Text>
+                <Text style={styles.sectionYellowTitle}>💜 Self-Care Resources</Text>
                 <Text style={styles.arrow}>→</Text>
               </TouchableOpacity>
               
@@ -443,9 +545,9 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.bottomNavContainer}>
           <View style={styles.bottomNav}>
             {/* Home */}
-            <TouchableOpacity 
-              style={[styles.navIconContainer, activeTab === 'Home' && styles.activeNavContainer]} 
-              onPress={() => handleNavigation('Home', 'Home')}
+            <TouchableOpacity
+              style={[styles.navIconContainer, activeTab === 'Home' && styles.activeNavContainer]}
+              onPress={() => setActiveTab('Home')}
             >
               <Text style={[styles.navIconText, activeTab === 'Home' && styles.activeNavText]}>🏠</Text>
             </TouchableOpacity>
@@ -540,27 +642,33 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     marginTop: 10
   },
-  greetingContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
+  greetingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly transparent white
     paddingVertical: 10,
-    paddingHorizontal: 15, 
+    paddingHorizontal: 15,
     borderRadius: 25, // More rounded
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.1, 
-    shadowRadius: 5, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
     elevation: 3,
     flex: 1, // Take available space
     marginRight: 15 // Space before notification bell
   },
-  profileImage: { 
-    width: 40, 
-    height: 40, 
-    borderRadius: 20, 
-    backgroundColor: '#E5E7EB', 
-    marginRight: 12 
+  profileIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E5E7EB',
+    marginRight: 12,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  profileIconEmoji: {
+    fontSize: 20,
+    color: '#6B7280'
   },
   userInfo: {
     flex: 1 // Allow text to take space but not push bell away
@@ -654,19 +762,47 @@ const styles = StyleSheet.create({
     paddingTop: 25, // Space between purple and first card
     borderTopLeftRadius: 30, // Curve the top edges
     borderTopRightRadius: 30,
-    marginTop: -20 // Pull the white area up slightly into the purple
+    marginTop: -20, // Pull the white area up slightly into the purple
+    position: 'relative',
+    overflow: 'hidden'
   },
-  card: { 
-    backgroundColor: 'white', 
-    padding: 20, 
-    borderRadius: 16, 
-    marginHorizontal: 20, 
+  contentWaveContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 200,
+    overflow: 'hidden',
+    zIndex: 0,
+  },
+  contentWave: {
+    position: 'absolute',
+    width: width,
+    height: 200,
+    borderRadius: width,
+  },
+  contentWave1: {
+    top: -100,
+    backgroundColor: '#B7C0EE',
+    opacity: 0.15,
+  },
+  contentWave2: {
+    top: -80,
+    backgroundColor: '#7B287D',
+    opacity: 0.08,
+  },
+  card: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 16,
+    marginHorizontal: 20,
     marginBottom: 18, // Consistent spacing
     shadowColor: '#4B5563', // Use a gray shadow color
-    shadowOffset: { width: 0, height: 3 }, 
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08, // Subtle opacity
     shadowRadius: 10, // Softer radius
-    elevation: 3 // Keep elevation for Android
+    elevation: 3, // Keep elevation for Android
+    zIndex: 1 // Ensure cards appear above wave background
   },
   cardTitle: {
     fontSize: 18,
@@ -675,9 +811,26 @@ const styles = StyleSheet.create({
     textAlign: 'left', // Align left for card titles
     color: '#330C2F' // Dark purple title
   },
-  checkInHeader: {
+  sectionYellowTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 0,
+    textAlign: 'left',
+    color: '#F59E0B' // Yellow/gold color for section titles
+  },
+  sectionTitleWrapper: {
+    marginBottom: 15
+  },
+  checkInHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    flexWrap: 'wrap'
+  },
+  checkInHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 15,
     flexWrap: 'wrap' // Allow wrapping on smaller screens
@@ -941,8 +1094,9 @@ const styles = StyleSheet.create({
     height: '100%', // Take full height of the bar
     borderRadius: 25, // Rounded corners for potential active state background
   },
-  activeNavContainer: { // Style for the active icon's container (optional background)
-    // backgroundColor: 'rgba(123, 40, 125, 0.5)', // Example active background
+  activeNavContainer: { // Style for the active icon's container
+    backgroundColor: 'rgba(123, 40, 125, 0.3)', // Active background for selected tab
+    borderRadius: 25,
   },
   navIconText: { // Style for the icon emoji/text
     fontSize: 24, // Icon size

@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   Platform,
   StatusBar,
-  Dimensions
+  Dimensions,
+  Alert
 } from 'react-native';
 import { LineChart, PieChart, BarChart } from 'react-native-chart-kit';
 import { useApp } from '../contexts/AppContext';
@@ -435,6 +436,32 @@ export default function EnhancedAnalyticsScreen({ navigation }) {
     return '➡️';
   };
 
+  const showMetricExplanation = (metricType) => {
+    const explanations = {
+      'bestPerformance': {
+        title: '🏆 Best Performance Mood',
+        message: 'This shows the mood level (1-10) at which you complete tasks most successfully. The percentage indicates your average task completion rate at this mood level.\n\nHow it\'s calculated: We analyze all your completed tasks and identify which mood level has the highest completion rate.'
+      },
+      'productiveTime': {
+        title: '⏰ Most Productive Time',
+        message: 'This indicates the time of day when you complete the most tasks.\n\nHow it\'s calculated: We track the timestamps of your completed tasks and identify the time period (Morning, Afternoon, or Evening) with the highest number of completions.'
+      },
+      'completionRate': {
+        title: '📊 Average Completion Rate',
+        message: 'This shows the percentage of tasks you complete on average.\n\nHow it\'s calculated: (Total Completed Tasks ÷ Total Tasks Created) × 100'
+      },
+      'trend': {
+        title: '📈 Task Completion Trend',
+        message: 'This shows whether your task completion is improving, declining, or stable over time.\n\n📈 Improving: You\'re completing more tasks recently\n📉 Declining: Fewer tasks completed recently\n➡️ Stable: Consistent completion rate'
+      }
+    };
+
+    const explanation = explanations[metricType];
+    if (explanation) {
+      Alert.alert(explanation.title, explanation.message, [{ text: 'Got it!' }]);
+    }
+  };
+
   const generateAIInsights = () => {
     const insights = [];
 
@@ -620,27 +647,36 @@ export default function EnhancedAnalyticsScreen({ navigation }) {
 
         {/* Performance Metrics */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>📊 Performance Metrics</Text>
+          <View style={styles.cardTitleRow}>
+            <Text style={styles.cardTitle}>📊 Performance Metrics</Text>
+            <TouchableOpacity onPress={() => Alert.alert('About Metrics', 'Tap any metric card to learn how it\'s calculated!', [{ text: 'OK' }])}>
+              <Text style={styles.infoIcon}>ℹ️</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.metricsGrid}>
             {productivityData.bestPerformanceMood && (
-              <View style={styles.metricCard}>
+              <TouchableOpacity style={styles.metricCard} onPress={() => showMetricExplanation('bestPerformance')}>
                 <Text style={styles.metricLabel}>Best Performance Mood</Text>
                 <Text style={styles.metricValue}>{productivityData.bestPerformanceMood.mood}/10</Text>
                 <Text style={styles.metricSubtext}>{productivityData.bestPerformanceMood.rate}% completion</Text>
-              </View>
+                <Text style={styles.tapToLearn}>Tap to learn more</Text>
+              </TouchableOpacity>
             )}
-            <View style={styles.metricCard}>
+            <TouchableOpacity style={styles.metricCard} onPress={() => showMetricExplanation('productiveTime')}>
               <Text style={styles.metricLabel}>Most Productive Time</Text>
               <Text style={styles.metricValue}>{productivityData.mostProductiveTime}</Text>
-            </View>
-            <View style={styles.metricCard}>
+              <Text style={styles.tapToLearn}>Tap to learn more</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.metricCard} onPress={() => showMetricExplanation('completionRate')}>
               <Text style={styles.metricLabel}>Avg Completion Rate</Text>
               <Text style={styles.metricValue}>{productivityData.averageCompletionRate}%</Text>
-            </View>
-            <View style={styles.metricCard}>
+              <Text style={styles.tapToLearn}>Tap to learn more</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.metricCard} onPress={() => showMetricExplanation('trend')}>
               <Text style={styles.metricLabel}>Task Completion Trend</Text>
               <Text style={styles.metricValue}>{getTrendIcon(productivityData.trendDirection)}</Text>
-            </View>
+              <Text style={styles.tapToLearn}>Tap to learn more</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -982,6 +1018,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 15,
     color: '#330C2F'
+  },
+  cardTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15
+  },
+  infoIcon: {
+    fontSize: 18,
+    color: '#7B287D'
+  },
+  tapToLearn: {
+    fontSize: 10,
+    color: '#7B287D',
+    marginTop: 5,
+    fontStyle: 'italic'
   },
   chart: {
     marginVertical: 8,

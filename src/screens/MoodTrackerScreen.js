@@ -301,9 +301,6 @@ export default function MoodTrackerScreen({ navigation }) {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Log</Text>
           <TouchableOpacity style={styles.menuButton}>
-            <View style={styles.menuDot} />
-            <View style={styles.menuDot} />
-            <View style={styles.menuDot} />
           </TouchableOpacity>
         </View>
 

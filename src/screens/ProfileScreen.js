@@ -19,6 +19,7 @@ const ProfileScreen = () => {
   const [completionRate, setCompletionRate] = useState(0);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [incompleteTasks, setIncompleteTasks] = useState([]);
+  const [showAllCompleted, setShowAllCompleted] = useState(false);
 
   useEffect(() => {
     if (state.tasks.length > 0) {
@@ -50,6 +51,22 @@ const ProfileScreen = () => {
     if (mood >= 4) return '😐';
     if (mood >= 2) return '😕';
     return '😢';
+  };
+
+  const getMoodQuote = (mood) => {
+    if (mood >= 9) {
+      return "✨ \"Your smile is a curve that sets everything straight.\" Keep shining bright!";
+    } else if (mood >= 7) {
+      return "🌟 \"Happiness is not by chance, but by choice.\" You're choosing joy today!";
+    } else if (mood >= 5) {
+      return "🌸 \"Every moment is a fresh beginning.\" Keep moving forward gently.";
+    } else if (mood >= 3) {
+      return "🌧️ \"The sun will rise and we will try again.\" Tomorrow is a new day.";
+    } else if (mood >= 1) {
+      return "💙 \"It's okay to not be okay.\" Be gentle with yourself today.";
+    } else {
+      return "💜 \"Every mood teaches us something.\" You're doing your best.";
+    }
   };
 
   const todaysMood = getTodaysMood();
@@ -86,6 +103,11 @@ const ProfileScreen = () => {
               )}
             </View>
           </View>
+          {todaysMood.mood > 0 && (
+            <View style={styles.moodQuoteContainer}>
+              <Text style={styles.moodQuote}>{getMoodQuote(todaysMood.mood)}</Text>
+            </View>
+          )}
         </View>
 
         {/* Daily Tasks Card */}
@@ -127,7 +149,7 @@ const ProfileScreen = () => {
           {completedTasks.length > 0 && (
             <View style={styles.taskSection}>
               <Text style={styles.taskSectionTitle}>✓ Completed Today</Text>
-              {completedTasks.slice(0, 3).map(task => (
+              {(showAllCompleted ? completedTasks : completedTasks.slice(0, 3)).map(task => (
                 <View key={task.id} style={styles.taskItem}>
                   <View style={styles.checkboxCompleted}>
                     <Text style={styles.checkmark}>✓</Text>
@@ -136,7 +158,13 @@ const ProfileScreen = () => {
                 </View>
               ))}
               {completedTasks.length > 3 && (
-                <Text style={styles.moreText}>+{completedTasks.length - 3} more</Text>
+                <TouchableOpacity onPress={() => setShowAllCompleted(!showAllCompleted)}>
+                  <Text style={styles.moreText}>
+                    {showAllCompleted
+                      ? 'Show less'
+                      : `+${completedTasks.length - 3} more`}
+                  </Text>
+                </TouchableOpacity>
               )}
             </View>
           )}
@@ -311,6 +339,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
     lineHeight: 20,
+  },
+  moodQuoteContainer: {
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.3)',
+  },
+  moodQuote: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.95)',
+    fontStyle: 'italic',
+    lineHeight: 22,
+    textAlign: 'center',
   },
   progressCircleContainer: {
     alignItems: 'center',
