@@ -10,11 +10,13 @@ import {
   ScrollView,
   Alert,
   StatusBar,
-  Platform
+  Platform,
+  Animated
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../contexts/AppContext';
 import TaskService from '../services/TaskService'; // Import TaskService
+import { Swipeable } from 'react-native-gesture-handler';
 
 const TaskListScreen = () => {
   const navigation = useNavigation();
@@ -38,55 +40,142 @@ const TaskListScreen = () => {
         return;
     }
 
-    try {
-      // Call the service to update Firestore
-      await TaskService.completeTask(user.uid, task.id);
+    // Ask for confirmation before marking as complete
+    Alert.alert(
+      'Complete Task',
+      `Have you really completed "${task.title}"?`,
+      [
+        {
+          text: 'Not Yet',
+          style: 'cancel'
+        },
+        {
+          text: 'Yes, Done!',
+          onPress: async () => {
+            try {
+              // Call the service to update Firestore
+              await TaskService.completeTask(user.uid, task.id);
 
-      // Update the task in the global state
-      dispatch({
-        type: 'UPDATE_TASK',
-        payload: {
-          id: task.id,
-          updates: { completed: true, completedAt: new Date() } // Simulate update
+              // Update the task in the global state
+              dispatch({
+                type: 'UPDATE_TASK',
+                payload: {
+                  id: task.id,
+                  updates: { completed: true, completedAt: new Date() }
+                }
+              });
+              
+              // Show success message
+              Alert.alert('Great Job! 🎉', `Task "${task.title}" marked as complete!`);
+            } catch (error) {
+              console.error('Error completing task:', error);
+              Alert.alert('Error', 'Failed to update task status.');
+            }
+          }
         }
-      });
-      Alert.alert('Success', `Task "${task.title}" marked as complete!`);
+      ]
+    );
+  };
 
-    } catch (error) {
-      console.error('Error completing task:', error);
-      Alert.alert('Error', 'Failed to update task status.');
+  // Function to handle editing a task
+  const handleEditTask = (task) => {
+    navigation.navigate('TaskEditor', { taskToEdit: task });
+  };
+
+  // Function to handle deleting a task
+  const handleDeleteTask = async (task) => {
+    if (!user?.uid) {
+      Alert.alert('Error', 'You must be logged in.');
+      return;
     }
+
+    Alert.alert(
+      'Delete Task',
+      `Are you sure you want to delete "${task.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await TaskService.deleteTask(user.uid, task.id);
+              
+              // Remove from global state
+              dispatch({
+                type: 'DELETE_TASK',
+                payload: task.id
+              });
+              
+              Alert.alert('Success', 'Task deleted successfully!');
+            } catch (error) {
+              console.error('Error deleting task:', error);
+              Alert.alert('Error', 'Failed to delete task.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // Render right swipe actions (Delete button)
+  const renderRightActions = (progress, dragX, task) => {
+    const trans = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [1, 0],
+      extrapolate: 'clamp',
+    });
+
+    return (
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDeleteTask(task)}
+      >
+        <Animated.View style={{ opacity: trans }}>
+          <Text style={styles.deleteButtonText}>Delete</Text>
+        </Animated.View>
+      </TouchableOpacity>
+    );
   };
 
   // Render item for FlatList
   const renderTaskItem = ({ item }) => {
     const isCompleted = item.completed;
     return (
-      <View style={[styles.taskItem, isCompleted && styles.taskItemCompleted]}>
+      <Swipeable
+        renderRightActions={(progress, dragX) => renderRightActions(progress, dragX, item)}
+        overshootRight={false}
+      >
         <TouchableOpacity
-          style={[styles.checkbox, isCompleted && styles.checkboxCompleted]}
-          onPress={() => handleToggleComplete(item)}
-          disabled={isCompleted} // Disable button if already completed
+          style={[styles.taskItem, isCompleted && styles.taskItemCompleted]}
+          onLongPress={() => handleEditTask(item)}
+          activeOpacity={0.7}
         >
-          {isCompleted && <Text style={styles.checkmark}>✓</Text>}
+          <TouchableOpacity
+            style={[styles.checkbox, isCompleted && styles.checkboxCompleted]}
+            onPress={() => handleToggleComplete(item)}
+            disabled={isCompleted} // Disable button if already completed
+          >
+            {isCompleted && <Text style={styles.checkmark}>✓</Text>}
+          </TouchableOpacity>
+          <View style={styles.taskContent}>
+            <Text style={[styles.taskTitle, isCompleted && styles.taskTitleCompleted]}>
+              {item.title || 'Untitled Task'}
+            </Text>
+            {item.description && !isCompleted && ( // Show description only if not completed
+              <Text style={styles.taskDescription} numberOfLines={2}>
+                {item.description}
+              </Text>
+            )}
+            {item.category && (
+              <Text style={styles.taskCategory}>
+                  Category: {item.category} {item.associatedMood ? `(${item.associatedMood})` : ''}
+              </Text>
+            )}
+          </View>
+          {/* Optional: Add an edit or delete button here */}
         </TouchableOpacity>
-        <View style={styles.taskContent}>
-          <Text style={[styles.taskTitle, isCompleted && styles.taskTitleCompleted]}>
-            {item.title || 'Untitled Task'}
-          </Text>
-          {item.description && !isCompleted && ( // Show description only if not completed
-            <Text style={styles.taskDescription} numberOfLines={2}>
-              {item.description}
-            </Text>
-          )}
-          {item.category && (
-            <Text style={styles.taskCategory}>
-                Category: {item.category} {item.associatedMood ? `(${item.associatedMood})` : ''}
-            </Text>
-          )}
-        </View>
-        {/* Optional: Add an edit or delete button here */}
-      </View>
+      </Swipeable>
     );
   };
 
@@ -277,6 +366,20 @@ const styles = StyleSheet.create({
     marginTop: 40,
     paddingHorizontal: 30,
     lineHeight: 24,
+  },
+  deleteButton: {
+    backgroundColor: '#EF4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    height: '92%',
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  deleteButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
 

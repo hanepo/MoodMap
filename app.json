@@ -5,12 +5,12 @@
     "owner": "hanepo21",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/newlogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": "moodmap",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/newlogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -27,7 +27,7 @@
     ],
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/newlogo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.yourcompany.moodmap",
@@ -35,7 +35,7 @@
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/newlogo.png"
     },
     "extra": {
       "eas": {

@@ -14,10 +14,11 @@ export default function WelcomeScreen({ navigation }) {
       <View style={styles.content}>
         {/* Logo/Image Placeholder */}
         <View style={styles.logoContainer}>
-          <View style={styles.logoPlaceholder}>
-            {/* Add your app logo/illustration here */}
-            <Text style={styles.logoText}>MoodMap</Text>
-          </View>
+          <Image 
+            source={require('../assets/newlogo.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Title */}
@@ -66,6 +67,10 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 60,
+  },
+  logoImage: {
+    width: 180,
+    height: 180,
   },
   logoPlaceholder: {
     width: 180,

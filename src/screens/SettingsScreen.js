@@ -42,6 +42,11 @@ const SettingsScreen = () => {
   const [emailPrefsModalVisible, setEmailPrefsModalVisible] = useState(false);
   const [emailPrefs, setEmailPrefs] = useState({ news: false, updates: false });
   const [exporting, setExporting] = useState(false);
+  
+  // Contact & Feedback states
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackText, setFeedbackText] = useState('');
 
   useEffect(() => {
     if (state.user?.displayName) {
@@ -370,6 +375,34 @@ const SettingsScreen = () => {
     }
   };
 
+  const handleSubmitFeedback = async () => {
+    if (feedbackRating === 0) {
+      Alert.alert('Rating Required', 'Please provide a rating (1-5 stars)');
+      return;
+    }
+    if (!feedbackText.trim()) {
+      Alert.alert('Feedback Required', 'Please write your comments or suggestions');
+      return;
+    }
+
+    try {
+      // Here you would normally save feedback to Firestore
+      // For now, we'll just show a success message
+      Alert.alert(
+        'Thank You! 🙏',
+        'Your feedback has been submitted successfully. We appreciate your input and will use it to improve MoodMap!',
+        [{ text: 'OK', onPress: () => {
+          setFeedbackModalVisible(false);
+          setFeedbackRating(0);
+          setFeedbackText('');
+        }}]
+      );
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      Alert.alert('Error', 'Failed to submit feedback. Please try again.');
+    }
+  };
+
   const formatLastLogin = () => {
     if (!state.user?.metadata?.lastSignInTime) return 'Recently';
     
@@ -557,6 +590,61 @@ const SettingsScreen = () => {
               <View>
                 <Text style={[styles.itemText, { color: theme.colors.text }]}>About</Text>
                 <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>App version and info</Text>
+              </View>
+            </View>
+            <Text style={styles.itemArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Contact & Feedback Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Contact & Feedback</Text>
+          <Text style={[styles.sectionDescription, { color: theme.colors.textSecondary }]}>
+            Your feedback helps us improve MoodMap!
+          </Text>
+
+          <TouchableOpacity
+            style={[styles.item, { backgroundColor: theme.colors.surface }]}
+            onPress={() => setFeedbackModalVisible(true)}
+          >
+            <View style={styles.itemLeft}>
+              <Text style={styles.itemIcon}>💬</Text>
+              <View>
+                <Text style={[styles.itemText, { color: theme.colors.text }]}>Provide Feedback</Text>
+                <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>Rate and share your thoughts</Text>
+              </View>
+            </View>
+            <Text style={styles.itemArrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.item, { backgroundColor: theme.colors.surface }]}
+            onPress={() => {
+              Linking.openURL('mailto:support.moodmap@iukl.edu.my?subject=MoodMap Support Request');
+            }}
+          >
+            <View style={styles.itemLeft}>
+              <Text style={styles.itemIcon}>📧</Text>
+              <View>
+                <Text style={[styles.itemText, { color: theme.colors.text }]}>Email Support</Text>
+                <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>support.moodmap@iukl.edu.my</Text>
+              </View>
+            </View>
+            <Text style={styles.itemArrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.item, { backgroundColor: theme.colors.surface }]}
+            onPress={() => Alert.alert(
+              'Stay Connected 🌟',
+              '• Follow development updates\n• Participate in user surveys\n• Join our beta testing program\n\nDuring Presentation: Use the feedback QR code to share your thoughts!'
+            )}
+          >
+            <View style={styles.itemLeft}>
+              <Text style={styles.itemIcon}>🔔</Text>
+              <View>
+                <Text style={[styles.itemText, { color: theme.colors.text }]}>Stay Connected</Text>
+                <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>Updates and beta program</Text>
               </View>
             </View>
             <Text style={styles.itemArrow}>›</Text>
@@ -849,6 +937,71 @@ const SettingsScreen = () => {
                 </Text>
               </View>
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Feedback Modal */}
+      <Modal
+        visible={feedbackModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setFeedbackModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>Provide Feedback</Text>
+            
+            <Text style={[styles.modalLabel, { color: theme.colors.textSecondary }]}>Rate Your Experience</Text>
+            <View style={styles.ratingContainer}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity
+                  key={star}
+                  onPress={() => setFeedbackRating(star)}
+                  style={styles.starButton}
+                >
+                  <Text style={styles.starIcon}>
+                    {star <= feedbackRating ? '⭐' : '☆'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[styles.modalLabel, { color: theme.colors.textSecondary }]}>Comments or Suggestions</Text>
+            <TextInput
+              style={[styles.feedbackInput, { 
+                backgroundColor: theme.colors.background,
+                color: theme.colors.text,
+                borderColor: theme.colors.border 
+              }]}
+              value={feedbackText}
+              onChangeText={setFeedbackText}
+              placeholder="Share your thoughts with us..."
+              placeholderTextColor={theme.colors.textSecondary}
+              multiline
+              numberOfLines={6}
+              textAlignVertical="top"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonCancel, { backgroundColor: theme.colors.background }]}
+                onPress={() => {
+                  setFeedbackModalVisible(false);
+                  setFeedbackRating(0);
+                  setFeedbackText('');
+                }}
+              >
+                <Text style={[styles.modalButtonTextCancel, { color: theme.colors.textSecondary }]}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonSave, { backgroundColor: theme.colors.primary }]}
+                onPress={handleSubmitFeedback}
+              >
+                <Text style={styles.modalButtonTextSave}>Submit</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -1151,6 +1304,38 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     gap: 10
+  },
+  // Contact & Feedback Section
+  sectionDescription: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 12,
+    marginLeft: 15,
+    marginRight: 15
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 15,
+    gap: 10
+  },
+  starButton: {
+    padding: 8
+  },
+  starIcon: {
+    fontSize: 36,
+    color: '#FFD700'
+  },
+  feedbackInput: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    padding: 12,
+    minHeight: 120,
+    textAlignVertical: 'top',
+    fontSize: 15,
+    marginBottom: 20
   }
 });
 

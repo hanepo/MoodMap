@@ -1,4 +1,4 @@
-import { collection, addDoc, query, orderBy, limit, getDocs, doc, updateDoc, increment } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, limit, getDocs, doc, updateDoc, increment, deleteDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export const TaskService = {
@@ -178,6 +178,51 @@ export const TaskService = {
     } catch (error) {
       console.error('❌ Error fetching task summary:', error);
       return [];
+    }
+  },
+
+  // Update a task
+  updateTask: async (userId, taskId, updates) => {
+    if (!userId) throw new Error('No user ID provided');
+    if (!taskId) throw new Error('No task ID provided');
+    
+    try {
+      console.log(`✏️ Updating task ${taskId} for user ${userId}`);
+      
+      const taskRef = doc(db, 'users', userId, 'tasks', taskId);
+      await updateDoc(taskRef, {
+        ...updates,
+        updatedAt: new Date()
+      });
+
+      console.log('✅ Task updated successfully');
+    } catch (error) {
+      console.error('❌ Error updating task:', error);
+      throw error;
+    }
+  },
+
+  // Delete a task
+  deleteTask: async (userId, taskId) => {
+    if (!userId) throw new Error('No user ID provided');
+    if (!taskId) throw new Error('No task ID provided');
+    
+    try {
+      console.log(`🗑️ Deleting task ${taskId} for user ${userId}`);
+      
+      const taskRef = doc(db, 'users', userId, 'tasks', taskId);
+      await deleteDoc(taskRef);
+      
+      // Update user's total tasks count
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        totalTasks: increment(-1)
+      });
+
+      console.log('✅ Task deleted successfully');
+    } catch (error) {
+      console.error('❌ Error deleting task:', error);
+      throw error;
     }
   }
 };

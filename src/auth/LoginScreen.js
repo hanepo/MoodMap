@@ -11,7 +11,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
@@ -291,7 +292,11 @@ export default function LoginScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Header Image Placeholder */}
           <View style={styles.headerImage}>
-            <View style={styles.imagePlaceholder}><Text style={styles.placeholderText}>Logo</Text></View>
+            <Image 
+              source={require('../assets/newlogo.png')} 
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
           <Text style={styles.title}>Sign In</Text>
           <View style={styles.form}>
@@ -390,6 +395,7 @@ const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
   scrollContent: { flexGrow: 1, paddingHorizontal: 30 },
   headerImage: { alignItems: 'center', marginTop: 40, marginBottom: 30 },
+  logoImage: { width: 120, height: 120 },
   imagePlaceholder: { width: 200, height: 150, backgroundColor: '#E5E7EB', justifyContent: 'center', alignItems: 'center', borderRadius: 12 },
   placeholderText: { color: '#9CA3AF', fontSize: 16 },
   title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 40, color: '#330C2F' },

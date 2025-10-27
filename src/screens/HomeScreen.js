@@ -814,7 +814,7 @@ const styles = StyleSheet.create({
   sectionYellowTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 0,
+    marginBottom: 10,
     textAlign: 'left',
     color: '#F59E0B' // Yellow/gold color for section titles
   },

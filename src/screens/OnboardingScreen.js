@@ -6,19 +6,19 @@ const onboardingData = [
     id: 1,
     title: 'Track Your Mood',
     description: 'Easily log your emotions and keep a record of how you feel each day.',
-    //image: require('../../assets/onboarding1.png'),
+    image: require('../assets/Artboard 1.png'),
   },
   {
     id: 2,
     title: 'Personalized Tasks',
     description: 'Get activity suggestions tailored to your current mood.',
-    //image: require('../../assets/onboarding2.png'),
+    image: require('../assets/Artboard 2.png'),
   },
   {
     id: 3,
     title: 'Improve Your Day',
     description: 'Use insights and self-care tips to boost your well-being.',
-    //image: require('../../assets/onboarding3.png'),
+    image: require('../assets/Artboard 3.png'),
   },
 ];
 

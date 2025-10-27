@@ -50,6 +50,11 @@ function appReducer(state, action) {
             : task
         )
       };
+    case 'DELETE_TASK':
+      return {
+        ...state,
+        tasks: state.tasks.filter(task => task.id !== action.payload)
+      };
     case 'SET_TASK_SUMMARY':
       return { ...state, taskSummary: action.payload };
     case 'SET_SUPPORT_RESOURCES':

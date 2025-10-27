@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import { useApp } from '../contexts/AppContext';
 
 export default function SplashScreen({ navigation }) {
@@ -29,7 +29,11 @@ export default function SplashScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Text style={styles.logo}>MoodMap</Text>
+        <Image 
+          source={require('../assets/newlogo.png')} 
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </View>
       <ActivityIndicator size="large" color="#7B287D" style={styles.loader} />
       <Text style={styles.loadingText}>
@@ -48,6 +52,10 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 40,
+  },
+  logoImage: {
+    width: 150,
+    height: 150,
   },
   logo: {
     fontSize: 48,

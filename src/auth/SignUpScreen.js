@@ -11,7 +11,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -185,7 +186,11 @@ export default function SignUpScreen({ navigation }) {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.headerImage}>
-            <View style={styles.imagePlaceholder}><Text style={styles.placeholderText}>Logo</Text></View>
+            <Image 
+              source={require('../assets/newlogo.png')} 
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
           <Text style={styles.title}>Create Account</Text>
           <View style={styles.form}>
@@ -265,6 +270,7 @@ const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
   scrollContent: { flexGrow: 1, paddingHorizontal: 30 },
   headerImage: { alignItems: 'center', marginTop: 40, marginBottom: 30 },
+  logoImage: { width: 120, height: 120 },
   imagePlaceholder: { width: 200, height: 70, backgroundColor: '#E5E7EB', justifyContent: 'center', alignItems: 'center', borderRadius: 12 },
   placeholderText: { color: '#9CA3AF', fontSize: 16 },
   title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 40, color: '#330C2F' },

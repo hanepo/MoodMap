@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -9,13 +9,18 @@ import {
   SafeAreaView,
   Alert
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useApp } from '../contexts/AppContext';
 import TaskService from '../services/TaskService';
 
 const TaskEditorScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const { state, dispatch } = useApp();
+  
+  // Check if we're editing an existing task
+  const taskToEdit = route.params?.taskToEdit;
+  const isEditMode = !!taskToEdit;
   
   // Form state
   const [taskName, setTaskName] = useState('');
@@ -25,6 +30,19 @@ const TaskEditorScreen = () => {
   const [focus, setFocus] = useState(5);
   const [urgency, setUrgency] = useState(false);
   const [category, setCategory] = useState('Reflection');
+
+  // Load existing task data when in edit mode
+  useEffect(() => {
+    if (isEditMode && taskToEdit) {
+      setTaskName(taskToEdit.title || '');
+      setDescription(taskToEdit.description || '');
+      setSelectedMood(taskToEdit.associatedMood || null);
+      setEffort(taskToEdit.effort || 5);
+      setFocus(taskToEdit.focus || 5);
+      setUrgency(taskToEdit.urgency || false);
+      setCategory(taskToEdit.category || 'Reflection');
+    }
+  }, [isEditMode, taskToEdit]);
 
   // Mood categories matching your schema
   const moodOptions = [
@@ -83,28 +101,46 @@ const TaskEditorScreen = () => {
         isCustom: true
       };
 
-      const newTask = await TaskService.createTask(state.user.uid, taskData);
-      
-      dispatch({
-        type: 'ADD_TASK',
-        payload: newTask
-      });
+      if (isEditMode) {
+        // Update existing task
+        await TaskService.updateTask(state.user.uid, taskToEdit.id, taskData);
+        
+        dispatch({
+          type: 'UPDATE_TASK',
+          payload: {
+            id: taskToEdit.id,
+            updates: taskData
+          }
+        });
 
-      Alert.alert('Success', 'Task created successfully!', [
-        { text: 'OK', onPress: () => {
-          // Reset form
-          setTaskName('');
-          setDescription('');
-          setSelectedMood(null);
-          setEffort(5);
-          setFocus(5);
-          setUrgency(false);
-          navigation.goBack();
-        }}
-      ]);
+        Alert.alert('Success', 'Task updated successfully!', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+      } else {
+        // Create new task
+        const newTask = await TaskService.createTask(state.user.uid, taskData);
+        
+        dispatch({
+          type: 'ADD_TASK',
+          payload: newTask
+        });
+
+        Alert.alert('Success', 'Task created successfully!', [
+          { text: 'OK', onPress: () => {
+            // Reset form
+            setTaskName('');
+            setDescription('');
+            setSelectedMood(null);
+            setEffort(5);
+            setFocus(5);
+            setUrgency(false);
+            navigation.goBack();
+          }}
+        ]);
+      }
     } catch (error) {
-      console.error('Error creating task:', error);
-      Alert.alert('Error', 'Failed to create task. Please try again.');
+      console.error('Error saving task:', error);
+      Alert.alert('Error', `Failed to ${isEditMode ? 'update' : 'create'} task. Please try again.`);
     }
   };
 
@@ -118,16 +154,19 @@ const TaskEditorScreen = () => {
         >
           <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Task Editor</Text>
+        <Text style={styles.headerTitle}>{isEditMode ? 'Edit Task' : 'Task Editor'}</Text>
         <View style={styles.placeholder} />
       </View>
 
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         {/* Info Card */}
         <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>Create Custom Task</Text>
+          <Text style={styles.infoTitle}>{isEditMode ? 'Edit Your Task' : 'Create Custom Task'}</Text>
           <Text style={styles.infoText}>
-            Design tasks that match your mood and energy levels. These will appear as recommendations when you log your mood.
+            {isEditMode 
+              ? 'Update your task details to better match your current needs.'
+              : 'Design tasks that match your mood and energy levels. These will appear as recommendations when you log your mood.'
+            }
           </Text>
         </View>
 
@@ -302,7 +341,7 @@ const TaskEditorScreen = () => {
 
         {/* Submit Button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmitTask}>
-          <Text style={styles.submitButtonText}>Create Task</Text>
+          <Text style={styles.submitButtonText}>{isEditMode ? 'Save Changes' : 'Create Task'}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
