@@ -1,5 +1,5 @@
 // src/services/SentimentService.js
-const API_URL = 'http://192.168.100.140:5000'; // !! IMPORTANT: Replace with your CORRECT server IP address !!
+const API_URL = 'http://10.5.8.52:5000'; // !! IMPORTANT: Replace with your CORRECT server IP address !!
 
 export const SentimentService = {
   analyzeSentiment: async (text) => {

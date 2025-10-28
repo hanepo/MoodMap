@@ -88,7 +88,7 @@ const ProfileScreen = () => {
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         {/* Today's Mood Card */}
         <View style={styles.moodCard}>
-          <Text style={styles.cardTitle}>Today's Mood</Text>
+          <Text style={styles.cardTitleTop}>Today's Mood</Text>
           <View style={styles.moodContainer}>
             <View style={styles.moodIconContainer}>
               <Text style={styles.moodEmoji}>{getMoodEmoji(todaysMood.mood)}</Text>
@@ -290,11 +290,18 @@ const styles = StyleSheet.create({
     shadowRadius: 8, 
     elevation: 3 
   },
-  cardTitle: { 
+  cardTitleTop: { 
     fontSize: 20, 
     fontWeight: 'bold', 
     color: 'white',
-    marginBottom: 15,
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  cardTitle: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: 'black',
+    marginBottom: 20,
     textAlign: 'center'
   },
   cardSubtitle: {

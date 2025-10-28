@@ -254,7 +254,7 @@ export const getTaskCategories = async () => {
       createdAt: doc.data().createdAt?.toDate?.() || null
     }));
 
-    console.log(`✅ Fetched ${categories.length} task categories`);
+    console.log(`âœ… Fetched ${categories.length} task categories`);
     return createResponse(true, categories);
   } catch (error) {
     console.error('getTaskCategories error:', error);
@@ -277,7 +277,7 @@ export const createTaskCategory = async (categoryData) => {
     };
 
     const docRef = await addDoc(categoriesRef, newCategory);
-    console.log(`✅ Created task category: ${categoryData.name}`);
+    console.log(`âœ… Created task category: ${categoryData.name}`);
 
     return createResponse(true, { id: docRef.id, ...categoryData });
   } catch (error) {
@@ -300,7 +300,7 @@ export const updateTaskCategory = async (categoryId, updates) => {
       updatedAt: serverTimestamp()
     });
 
-    console.log(`✅ Updated task category: ${categoryId}`);
+    console.log(`âœ… Updated task category: ${categoryId}`);
     return createResponse(true, { id: categoryId, ...updates });
   } catch (error) {
     console.error('updateTaskCategory error:', error);
@@ -318,7 +318,7 @@ export const deleteTaskCategory = async (categoryId) => {
     const categoryRef = doc(db, 'taskCategories', categoryId);
     await deleteDoc(categoryRef);
 
-    console.log(`✅ Deleted task category: ${categoryId}`);
+    console.log(`âœ… Deleted task category: ${categoryId}`);
     return createResponse(true, { id: categoryId });
   } catch (error) {
     console.error('deleteTaskCategory error:', error);
@@ -432,7 +432,7 @@ export const generateReport = async (params) => {
     let csvData = '';
     let recordCount = 0;
 
-    console.log(`📊 Generating ${type} report from ${from} to ${to}`);
+    console.log(`ðŸ“Š Generating ${type} report from ${from} to ${to}`);
 
     if (type === 'users') {
       // Generate user report
@@ -491,7 +491,7 @@ export const generateReport = async (params) => {
       }
     }
 
-    console.log(`✅ Generated ${type} report with ${recordCount} records`);
+    console.log(`âœ… Generated ${type} report with ${recordCount} records`);
 
     return createResponse(true, { csvData, recordCount, type });
   } catch (error) {
@@ -541,7 +541,7 @@ export const getLogs = async ({ type = null, from = null, to = null, q = '' }) =
       );
     }
 
-    console.log(`✅ Fetched ${logs.length} system logs`);
+    console.log(`âœ… Fetched ${logs.length} system logs`);
     return createResponse(true, logs);
   } catch (error) {
     console.error('getLogs error:', error);
@@ -564,7 +564,7 @@ export const createLog = async (logData) => {
     };
 
     const docRef = await addDoc(logsRef, newLog);
-    console.log(`✅ Created ${logData.type} log: ${logData.message}`);
+    console.log(`âœ… Created ${logData.type} log: ${logData.message}`);
 
     return createResponse(true, { id: docRef.id, ...logData });
   } catch (error) {
@@ -589,7 +589,7 @@ export const getDocuments = async () => {
       uploadedAt: doc.data().uploadedAt?.toDate?.() || null
     }));
 
-    console.log(`✅ Fetched ${documents.length} documents`);
+    console.log(`âœ… Fetched ${documents.length} documents`);
     return createResponse(true, documents);
   } catch (error) {
     console.error('getDocuments error:', error);
@@ -612,11 +612,11 @@ export const uploadDocumentation = async (file) => {
       type: file.type || 'application/pdf',
       uploadedAt: serverTimestamp(),
       uploadedBy: 'Admin',
-      icon: '📄'
+      icon: 'ðŸ“„'
     };
 
     const docRef = await addDoc(docsRef, newDoc);
-    console.log(`✅ Created document metadata: ${file.name}`);
+    console.log(`âœ… Created document metadata: ${file.name}`);
 
     return createResponse(true, { id: docRef.id, ...newDoc });
   } catch (error) {
@@ -635,7 +635,7 @@ export const deleteDocumentation = async (docId) => {
     const docRef = doc(db, 'documentation', docId);
     await deleteDoc(docRef);
 
-    console.log(`✅ Deleted document: ${docId}`);
+    console.log(`âœ… Deleted document: ${docId}`);
     return createResponse(true, { id: docId });
   } catch (error) {
     console.error('deleteDocumentation error:', error);

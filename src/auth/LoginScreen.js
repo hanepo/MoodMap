@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
   scrollContent: { flexGrow: 1, paddingHorizontal: 30 },
   headerImage: { alignItems: 'center', marginTop: 40, marginBottom: 30 },
-  logoImage: { width: 120, height: 120 },
+  logoImage: { width: 220, height: 220 },
   imagePlaceholder: { width: 200, height: 150, backgroundColor: '#E5E7EB', justifyContent: 'center', alignItems: 'center', borderRadius: 12 },
   placeholderText: { color: '#9CA3AF', fontSize: 16 },
   title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 40, color: '#330C2F' },

@@ -1016,6 +1016,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    marginTop: 15,
     marginBottom: 15,
     color: '#330C2F'
   },

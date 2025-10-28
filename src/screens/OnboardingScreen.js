@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 const onboardingData = [
   {
@@ -39,29 +41,38 @@ export default function OnboardingScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Image */}
-      <Image source={onboardingData[currentIndex].image} style={styles.image} resizeMode="contain" />
+      {/* Full Screen Image */}
+      <Image 
+        source={onboardingData[currentIndex].image} 
+        style={styles.backgroundImage} 
+        resizeMode="cover" 
+      />
 
-      {/* Title & Description */}
-      <Text style={styles.title}>{onboardingData[currentIndex].title}</Text>
-      <Text style={styles.description}>{onboardingData[currentIndex].description}</Text>
+      {/* Overlay Content */}
+      <View style={styles.overlay}>
+        {/* Text Content at Bottom */}
+        <View style={styles.contentContainer}>
+          <Text style={styles.title}>{onboardingData[currentIndex].title}</Text>
+          <Text style={styles.description}>{onboardingData[currentIndex].description}</Text>
+        </View>
 
-      {/* Navigation Buttons */}
-      <View style={styles.buttonContainer}>
-        {currentIndex < onboardingData.length - 1 ? (
-          <>
-            <TouchableOpacity onPress={handleSkip}>
-              <Text style={styles.skipText}>Skip</Text>
+        {/* Navigation Buttons */}
+        <View style={styles.buttonContainer}>
+          {currentIndex < onboardingData.length - 1 ? (
+            <>
+              <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
+                <Text style={styles.skipText}>Skip</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                <Text style={styles.nextButtonText}>Next</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity style={styles.getStartedButton} onPress={handleNext}>
+              <Text style={styles.nextButtonText}>Get Started</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-              <Text style={styles.nextButtonText}>Next</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-            <Text style={styles.nextButtonText}>Get Started</Text>
-          </TouchableOpacity>
-        )}
+          )}
+        </View>
       </View>
     </View>
   );
@@ -70,47 +81,87 @@ export default function OnboardingScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  image: {
-    width: '80%',
-    height: 250,
-    marginBottom: 40,
+  backgroundImage: {
+    position: 'absolute',
+    width: width,
+    height: height,
+    top: 0,
+    left: 0,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Semi-transparent overlay for better text readability
+  },
+  contentContainer: {
+    paddingHorizontal: 40,
+    paddingBottom: 40,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 15,
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   description: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#555',
-    paddingHorizontal: 20,
-    marginBottom: 50,
+    color: '#fff',
+    lineHeight: 24,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '80%',
+    alignItems: 'center',
+    paddingHorizontal: 30,
+    paddingBottom: 40,
+  },
+  skipButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
   },
   skipText: {
     fontSize: 16,
-    color: '#888',
-    paddingVertical: 10,
+    color: '#fff',
+    fontWeight: '600',
   },
   nextButton: {
     backgroundColor: '#6C63FF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  getStartedButton: {
+    backgroundColor: '#6C63FF',
+    paddingHorizontal: 40,
+    paddingVertical: 12,
+    borderRadius: 25,
+    flex: 1,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   nextButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });

@@ -33,7 +33,6 @@ const SettingsScreen = () => {
   const [newDisplayName, setNewDisplayName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPhoneNumber, setNewPhoneNumber] = useState('');
-  const [faqModalVisible, setFaqModalVisible] = useState(false);
   const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPasswordInput, setNewPasswordInput] = useState('');
@@ -518,7 +517,7 @@ const SettingsScreen = () => {
               <Text style={styles.itemIcon}>📊</Text>
               <View>
                 <Text style={[styles.itemText, { color: theme.colors.text }]}>Download PDF Report</Text>
-                <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>{exporting ? 'Generating PDF...' : 'Generate wellness report with statistics & charts'}</Text>
+                <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>{exporting ? 'Generating PDF...' : 'Generate wellness report with statistics \n& charts'}</Text>
               </View>
             </View>
             <Text style={styles.itemArrow}>›</Text>
@@ -549,7 +548,25 @@ const SettingsScreen = () => {
 
           <TouchableOpacity
             style={[styles.item, { backgroundColor: theme.colors.surface }]}
-            onPress={() => setFaqModalVisible(true)}
+            onPress={() => Alert.alert(
+              'FAQ',
+              '📊 How often should I log my mood?\n' +
+              'We recommend logging at least once daily.\n\n' +
+              
+              '📋 Task difficulty levels?\n' +
+              '• Easy: 5-15 min\n• Medium: 15-30 min\n• Hard: 30+ min\n\n' +
+              
+              '🔒 Data storage?\n' +
+              'Securely stored in Firebase with encryption.\n\n' +
+              
+              '📤 Export mood history?\n' +
+              'Settings → Data & Privacy → Download PDF Report\n\n' +
+              
+              '🆘 Mental health crisis?\n' +
+              '🇺🇸 US: 988\n🇲🇾 Malaysia: 03-7956 8145\n\n' +
+              
+              'More questions? Email:\nsupport.moodmap@iukl.edu.my'
+            )}
           >
             <View style={styles.itemLeft}>
               <Text style={styles.itemIcon}>❓</Text>
@@ -569,7 +586,7 @@ const SettingsScreen = () => {
             )}
           >
             <View style={styles.itemLeft}>
-              <Text style={styles.itemIcon}>🐛</Text>
+              <Text style={styles.itemIcon}>🛠</Text>
               <View>
                 <Text style={[styles.itemText, { color: theme.colors.text }]}>Report a Problem</Text>
                 <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>Let us know about issues</Text>
@@ -641,7 +658,7 @@ const SettingsScreen = () => {
             )}
           >
             <View style={styles.itemLeft}>
-              <Text style={styles.itemIcon}>🔔</Text>
+              <Text style={styles.itemIcon}>🔗</Text>
               <View>
                 <Text style={[styles.itemText, { color: theme.colors.text }]}>Stay Connected</Text>
                 <Text style={[styles.itemDescription, { color: theme.colors.textSecondary }]}>Updates and beta program</Text>
@@ -850,97 +867,6 @@ const SettingsScreen = () => {
         </View>
       </Modal>
 
-      {/* FAQ Modal */}
-      <Modal
-        visible={faqModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setFaqModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.faqModalContent, { backgroundColor: theme.colors.surface }]}>
-            <View style={styles.faqHeader}>
-              <Text style={[styles.modalTitle, { color: theme.colors.text }]}>Frequently Asked Questions</Text>
-              <TouchableOpacity onPress={() => setFaqModalVisible(false)}>
-                <Text style={styles.closeButton}>✕</Text>
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.faqScroll}>
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>How often should I log my mood?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  We recommend logging your mood at least once daily, ideally at the same time each day. This helps you track patterns and trends more effectively.
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>What do the task difficulty levels mean?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  Easy tasks require minimal energy and time (5-15 minutes). Medium tasks need moderate effort (15-30 minutes). Hard tasks are more demanding and may take 30+ minutes.
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>How is my data stored?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  Your data is securely stored in Firebase and is only accessible to you. We never share your personal information or mood data with third parties.
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>Can I export my mood history?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  Yes! Go to Settings → Data & Privacy → Export Data to download your mood entries and tasks as a CSV file.
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>What should I do if I'm experiencing a mental health crisis?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  MoodMap is a wellness tool, not a replacement for professional help. If you're in crisis, please contact a mental health professional or crisis hotline immediately. National Crisis Hotline: 988 (US)
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>How do I delete my account?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  Go to Settings → Danger Zone → Delete Account. Please note this action is permanent and cannot be undone.
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>Can I track multiple moods in one day?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  Yes! You can log your mood multiple times throughout the day. This helps you see how your mood changes and identify patterns or triggers.
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>What are check-ins and how do they work?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  Daily check-ins help you build a habit of self-reflection. Simply tap on today's day in the calendar to mark it complete. Keep your streak going to stay motivated!
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>How are task recommendations personalized?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  MoodMap analyzes your recent mood entries and suggests activities that match your current energy levels and emotional state. Tasks are tailored to help you feel better or maintain your positive mood.
-                </Text>
-              </View>
-
-              <View style={[styles.faqItem, { borderBottomColor: theme.colors.border }]}>
-                <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>Is MoodMap free to use?</Text>
-                <Text style={[styles.faqAnswer, { color: theme.colors.textSecondary }]}>
-                  Yes! MoodMap is completely free to use. All core features including mood tracking, task management, and analytics are available at no cost.
-                </Text>
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
       {/* Feedback Modal */}
       <Modal
         visible={feedbackModalVisible}
@@ -1118,6 +1044,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     marginLeft: 5
   },
+  sectionDescription: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 12,
+    marginLeft: 15,
+    marginRight: 15
+  },
   dangerTitle: {
     fontSize: 16, 
     fontWeight: 'bold',
@@ -1255,63 +1188,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600'
   },
-  // FAQ Modal
-  faqModalContent: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
-    width: '100%',
-    maxWidth: 500,
-    maxHeight: '80%'
-  },
-  faqHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20
-  },
-  closeButton: {
-    fontSize: 24,
-    color: '#6B7280'
-  },
-  faqScroll: {
-    flex: 1
-  },
-  faqItem: {
-    marginBottom: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB'
-  },
-  faqQuestion: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#330C2F',
-    marginBottom: 8
-  },
-  faqAnswer: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20
-  },
   emailPrefsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 20,
     marginBottom: 20
   },
   emailPrefItem: {
-    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 10
-  },
-  // Contact & Feedback Section
-  sectionDescription: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 12,
-    marginLeft: 15,
-    marginRight: 15
+    paddingVertical: 12
   },
   ratingContainer: {
     flexDirection: 'row',

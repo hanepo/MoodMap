@@ -22,10 +22,6 @@ import { getMostFrequent } from '../utils/helpers'; // Import the helper functio
 
 export default function HomeScreen({ navigation }) {
   const { state, dispatch } = useApp();
-  // console.log('HomeScreen rendered'); // Keep for debugging if needed
-  // console.log('User state:', state.user?.uid);
-  // console.log('Tasks in state:', state.tasks); // Log tasks
-  // console.log('Moods in state:', state.moods); // Log moods
   const { user, moods, tasks, taskSummary, supportResources, loading, error } = state;
 
   const [checkIns, setCheckIns] = useState({});
@@ -151,10 +147,7 @@ export default function HomeScreen({ navigation }) {
   // Gets the latest mood entry for today
   const getTodaysMood = () => {
     const today = new Date().toISOString().split('T')[0];
-    // Find the mood entry matching today's date
-    // Assumes moods array is reasonably small or sorted by date
     const todaysEntry = state.moods.find(mood => mood.date === today);
-    // console.log("Today's mood entry:", todaysEntry); // Debug log
     return todaysEntry; 
   };
 
@@ -162,14 +155,12 @@ export default function HomeScreen({ navigation }) {
   const getCompletionRate = () => {
     if (!state.tasks || state.tasks.length === 0) return 0;
     const completed = state.tasks.filter(task => task.completed).length;
-    // console.log(`Completion: ${completed} / ${state.tasks.length}`); // Debug log
     return Math.round((completed / state.tasks.length) * 100);
   };
   
   // Gets the most frequent mood label from recent moods
   const getMostFrequentMood = () => {
     if (!state.moods || state.moods.length === 0) return 'N/A';
-    // Use the helper function, assuming moodLabel exists
     const mostFrequent = getMostFrequent(state.moods, 'moodLabel'); 
     return mostFrequent ? mostFrequent.key : 'N/A';
   };
@@ -177,19 +168,17 @@ export default function HomeScreen({ navigation }) {
   // --- End Derived Data Functions ---
 
   const handleCheckIn = async (dayIndex) => {
-    // ... (keep existing check-in logic) ...
     if (!state.user?.uid) {
       Alert.alert('Error', 'Please log in first');
       return;
     }
     
-    const today = new Date().getDay(); // 0 for Sunday, 6 for Saturday
+    const today = new Date().getDay();
     if (dayIndex !== today) {
       Alert.alert('Not Available', 'You can only check in for today!');
       return;
     }
     
-    // Prevent double check-in visually immediately
     if (checkIns[dayIndex]) {
         Alert.alert('Already Checked In', 'You already checked in today!');
         return;
@@ -200,10 +189,8 @@ export default function HomeScreen({ navigation }) {
 
       if (result.alreadyCheckedIn) {
         Alert.alert('Already Checked In', 'You already checked in today!');
-        // Ensure UI reflects the state just in case
         setCheckIns(prev => ({ ...prev, [dayIndex]: true }));
       } else {
-        // Reload all check-ins to update the UI and streak
         await loadCheckIns();
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         Alert.alert('Success', `Checked in for ${dayNames[dayIndex]}! Streak: ${result.streakCount} days 🔥`);
@@ -214,13 +201,11 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  // Renamed from handleMoodEntry to avoid confusion
   const handleNavigateToMoodTracker = () => {
-    setActiveTab('MoodTracker'); // Set tab state for visual feedback
+    setActiveTab('MoodTracker');
     navigation.navigate('MoodTracker');
   };
 
-  // Generic navigation handler for bottom tabs
   const handleNavigation = (screen, tabName) => {
     setActiveTab(tabName);
     navigation.navigate(screen);
@@ -228,39 +213,30 @@ export default function HomeScreen({ navigation }) {
 
   // --- Click Handlers for Mood Journey Cards ---
 
-  // Card 1: Mood Today - Navigate to Mood Tracker if no entry, else maybe show details?
   const handleMoodTodayClick = () => {
     const todaysEntry = getTodaysMood();
     if (todaysEntry) {
-      // Maybe navigate to a screen showing details of today's mood?
-      // For now, let's just go to Analytics
       setActiveTab('Analytics');
       navigation.navigate('Analytics'); 
       console.log("Today's mood already logged:", todaysEntry);
     } else {
-      // If no mood logged, prompt user to log it
       handleNavigateToMoodTracker();
     }
   };
 
-  // Card 2: Mood History - Navigate to main SimpleMoodHistory
   const handleMoodHistoryClick = () => {
-    // setActiveTab('Analytics'); // Keep this if you want Analytics icon highlighted
-    navigation.navigate('SimpleMoodHistory'); // Navigate to the new simplified screen
+    navigation.navigate('SimpleMoodHistory');
     console.log("Navigate to Simple Mood History Screen");
   };
 
-  // Card 3: Tasks - Navigate to a Task List screen (To be created)
   const handleTasksClick = () => {
-    setActiveTab('TaskList'); // Use a descriptive tab name if needed for styling
-    navigation.navigate('TaskList'); // Navigate to the new task list screen
+    setActiveTab('TaskList');
+    navigation.navigate('TaskList');
     console.log("Navigate to Task List Screen");
   };
 
-  // Card 4: Task Progress - Navigate to main Analytics for now
   const handleTaskProgressClick = () => {
-    // setActiveTab('Analytics'); // Keep if desired
-    navigation.navigate('SimpleTaskProgress'); // Navigate to the new screen
+    navigation.navigate('SimpleTaskProgress');
     console.log("Navigate to Simple Task Progress Screen");
   };
 
@@ -279,13 +255,13 @@ export default function HomeScreen({ navigation }) {
   // Get data needed for rendering
   const todaysMood = getTodaysMood();
   const completionRate = getCompletionRate();
-  const frequentMood = getMostFrequentMood(); // Get the most frequent mood
-  const recentTasks = state.taskSummary || []; // Use summary from state
+  const frequentMood = getMostFrequentMood();
+  const recentTasks = state.taskSummary || [];
 
   const previewSupportResources = supportResources.slice(0, 2);
 
   const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  const todayIndex = new Date().getDay(); // 0 = Sunday
+  const todayIndex = new Date().getDay();
 
   const wave1TranslateY = wave1.interpolate({
     inputRange: [0, 1],
@@ -304,11 +280,30 @@ export default function HomeScreen({ navigation }) {
         <ScrollView 
           style={styles.scrollContainer} 
           contentContainerStyle={styles.scrollContent}
-          bounces={false} // Prevent bounce effect which can look odd with top color
+          bounces={false}
+          showsVerticalScrollIndicator={false}
         >
-          {/* Top Mood Section */}
+          {/* Top Mood Section with Wave Background */}
           <View style={styles.moodContainer}>
-            {/* ... (keep HeaderContainer JSX - profile pic, greeting, notifications) ... */}
+            {/* Animated Wave Background */}
+            <View style={styles.waveContainer}>
+              <Animated.View
+                style={[
+                  styles.wave,
+                  styles.wave1,
+                  { transform: [{ translateY: wave1TranslateY }] }
+                ]}
+              />
+              <Animated.View
+                style={[
+                  styles.wave,
+                  styles.wave2,
+                  { transform: [{ translateY: wave2TranslateY }] }
+                ]}
+              />
+            </View>
+
+            {/* Header Container */}
             <View style={styles.headerContainer}>
               <TouchableOpacity style={styles.greetingContainer} onPress={handleProfileTasks}>
                 <View style={styles.profileIconCircle}>
@@ -331,7 +326,7 @@ export default function HomeScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
-            {/* ... (keep Mood Content JSX - title, subtitle) ... */}
+            {/* Mood Content */}
             <View style={styles.moodContent}>
               <Text style={styles.moodTitle}>How are you</Text>
               <View style={styles.feelingTodayContainer}>
@@ -347,28 +342,10 @@ export default function HomeScreen({ navigation }) {
 
           {/* Main Content Area (Cards) */}
           <View style={styles.contentContainer}>
-            {/* Animated Wave Background for Content Area */}
-            <View style={styles.contentWaveContainer}>
-              <Animated.View
-                style={[
-                  styles.contentWave,
-                  styles.contentWave1,
-                  { transform: [{ translateY: wave1TranslateY }] }
-                ]}
-              />
-              <Animated.View
-                style={[
-                  styles.contentWave,
-                  styles.contentWave2,
-                  { transform: [{ translateY: wave2TranslateY }] }
-                ]}
-              />
-            </View>
-
             {/* Daily Check-In Card */}
             <View style={styles.card}>
               <View style={styles.checkInHeaderRow}>
-                <Text style={styles.sectionYellowTitle}>📅 Daily Check-In</Text>
+                <Text style={styles.sectionTitle}>Daily Check-In</Text>
                 {currentStreak > 0 && (
                   <View style={styles.streakBadge}>
                     <Text style={styles.streakIcon}>🔥</Text>
@@ -379,7 +356,7 @@ export default function HomeScreen({ navigation }) {
               <View style={styles.calendarRow}>
                 {daysOfWeek.map((day, index) => {
                   const isToday = index === todayIndex;
-                  const isCheckedIn = !!checkIns[index]; // Use !! to ensure boolean
+                  const isCheckedIn = !!checkIns[index];
                   
                   return (
                     <TouchableOpacity
@@ -390,25 +367,19 @@ export default function HomeScreen({ navigation }) {
                         isCheckedIn && styles.dayCircleActive
                       ]}
                       onPress={() => handleCheckIn(index)}
-                      // Only allow check-in for today, and only if not already checked in
                       disabled={!isToday || isCheckedIn} 
                     >
                       <Text style={[
                         styles.dayText,
-                        // If checked in, always use active text style
                         isCheckedIn ? styles.dayTextActive :
-                        // If it's today (and not checked in), use the specific inactive today style
                         isToday ? styles.dayCircleTodayTextInactive : null
                       ]}>{day}</Text>
-                      {/* Show check only if checked in */}
                       {isCheckedIn && 
                         <Text style={styles.checkIcon}>✓</Text> 
                       }
-                      {/* Show circle for today if not checked in */}
                       {isToday && !isCheckedIn &&
                         <View style={styles.todayMarkerCircle} />
                       }
-                       {/* Show nothing for past/future days not checked in */}
                        {!isToday && !isCheckedIn &&
                         <View style={styles.emptyDayMarker} />
                        }
@@ -421,13 +392,12 @@ export default function HomeScreen({ navigation }) {
             {/* Mood Journey Card Grid */}
             <View style={styles.card}>
               <View style={styles.sectionTitleWrapper}>
-                <Text style={styles.sectionYellowTitle}>🌟 Mood Journey</Text>
+                <Text style={styles.sectionTitle}>Mood Journey</Text>
               </View>
               <View style={styles.moodGrid}>
                 
-                {/* --- Card 1: Mood Today --- */}
+                {/* Card 1: Mood Today */}
                 <TouchableOpacity style={styles.smallCard} onPress={handleMoodTodayClick}>
-                  {/* Keep icon */}
                   <View style={[styles.circleIcon, { backgroundColor: '#7B287D' }]} /> 
                   <Text style={styles.smallCardTitle}>Mood Today</Text>
                   {todaysMood ? (
@@ -438,15 +408,13 @@ export default function HomeScreen({ navigation }) {
                   ) : (
                     <Text style={styles.smallCardValue}>Tap to log</Text>
                   )}
-                  {/* Changed arrow to be more informative */}
                   <Text style={styles.viewMore}>
                     {todaysMood ? 'View Details →' : 'Log Mood →'}
                   </Text> 
                 </TouchableOpacity>
                 
-                {/* --- Card 2: Mood History (Simplified) --- */}
+                {/* Card 2: Mood History */}
                 <TouchableOpacity style={styles.smallCard} onPress={handleMoodHistoryClick}>
-                  {/* Keep icon */}
                   <View style={[styles.circleIcon, { backgroundColor: '#7067CF' }]} /> 
                   <Text style={styles.smallCardTitle}>Mood History</Text>
                   <Text style={styles.smallCardSubtitle}>RECENT TREND</Text>
@@ -454,20 +422,19 @@ export default function HomeScreen({ navigation }) {
                   <Text style={styles.viewMore}>View Analytics →</Text>
                 </TouchableOpacity>
                 
-                {/* --- Card 3: Tasks (List) --- */}
+                {/* Card 3: Tasks */}
                 <TouchableOpacity style={styles.smallCard} onPress={handleTasksClick}>
-                   {/* Keep icon */}
                   <View style={[styles.circleIcon, { backgroundColor: '#B7C0EE' }]} />
                   <Text style={styles.smallCardTitle}>Tasks</Text>
                   <View style={styles.taskListPreview}>
                     {recentTasks.length > 0 ? (
-                      recentTasks.map(task => ( // Use recentTasks from state
+                      recentTasks.map(task => (
                         <View key={task.id} style={styles.taskItem}>
                           <Text style={styles.taskCheckbox}>
                             {task.completed ? '☑' : '☐'}
                           </Text>
                           <Text style={styles.taskText} numberOfLines={1}>
-                            {task.title || 'Untitled Task'} {/* Handle missing title */}
+                            {task.title || 'Untitled Task'}
                           </Text>
                         </View>
                       ))
@@ -478,9 +445,8 @@ export default function HomeScreen({ navigation }) {
                   <Text style={styles.viewMore}>View All →</Text>
                 </TouchableOpacity>
                 
-                {/* --- Card 4: Task Progress --- */}
+                {/* Card 4: Task Progress */}
                 <TouchableOpacity style={styles.smallCard} onPress={handleTaskProgressClick}>
-                  {/* Keep icon */}
                   <View style={[styles.circleIcon, { backgroundColor: '#CBF3D2' }]} /> 
                   <Text style={styles.smallCardTitle}>Task Progress</Text>
                   <View style={styles.progressContainer}>
@@ -495,35 +461,31 @@ export default function HomeScreen({ navigation }) {
               </View>
             </View>
 
-            {/* Self-Care Resources Card (Keep existing structure, functionality to be added) */}
+            {/* Self-Care Resources Card */}
             <View style={styles.card}>
               <TouchableOpacity
                 style={styles.resourceHeader}
-                onPress={() => navigation.navigate('SelfCare')} // Link header to full screen
+                onPress={() => navigation.navigate('SelfCare')}
               >
-                <Text style={styles.sectionYellowTitle}>💜 Self-Care Resources</Text>
+                <Text style={styles.sectionTitle}>Self-Care Resources</Text>
                 <Text style={styles.arrow}>→</Text>
               </TouchableOpacity>
               
-              {/* Map over the preview resources from state */}
               {previewSupportResources.length > 0 ? (
                 previewSupportResources.map((resource) => (
                   <TouchableOpacity 
                     key={resource.id} 
                     style={styles.resourceItem}
-                    onPress={() => navigation.navigate('SelfCare')} // Also link items to full screen for now
+                    onPress={() => navigation.navigate('SelfCare')}
                   >
-                     {/* Use dynamic icon */}
                      <View style={[styles.circleIconSmall, { backgroundColor: '#330C2F' }]} > 
                         <Text style={styles.resourceIconEmoji}>{getResourceIcon(resource.type)}</Text>
                      </View> 
-                     {/* Use dynamic name */}
                      <Text style={styles.resourceText}>{resource.name || 'Resource'}</Text>
                      <Text style={styles.arrow}>→</Text>
                   </TouchableOpacity>
                 ))
               ) : (
-                  // Show message if no resources loaded
                   <Text style={styles.noDataText}>No resources available.</Text>
               )}
             </View>
@@ -532,7 +494,7 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.bottomPadding} /> 
 
             {/* Loading/Error indicators from state */}
-            {state.loading && state.user && ( // Only show loading if user is logged in but data isn't ready
+            {state.loading && state.user && (
               <Text style={styles.loadingText}>Loading your data...</Text>
             )}
             {state.error && (
@@ -552,7 +514,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={[styles.navIconText, activeTab === 'Home' && styles.activeNavText]}>🏠</Text>
             </TouchableOpacity>
             
-            {/* Task Editor/List (Placeholder using Editor for now) */}
+            {/* Task Editor/List */}
             <TouchableOpacity 
               style={[styles.navIconContainer, activeTab === 'TaskList' && styles.activeNavContainer]} 
               onPress={() => handleNavigation('TaskList', 'TaskList')}
@@ -583,7 +545,7 @@ export default function HomeScreen({ navigation }) {
           {/* Center Mood Tracker Button */}
           <TouchableOpacity 
             style={[styles.centerNavButton, activeTab === 'MoodTracker' && styles.centerNavButtonActive]} 
-            onPress={handleNavigateToMoodTracker} // Use specific handler
+            onPress={handleNavigateToMoodTracker}
           > 
             <Text style={styles.centerNavText}>⭐</Text>
           </TouchableOpacity>
@@ -600,62 +562,81 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: '#F8FAFC', // Base color
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // ✅ For Android devices
-  },
-  safeArea: {
-    flex: 1,
     backgroundColor: '#F8FAFC',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // ✅ For Android devices
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
-
   safeAreaTop: {
     flex: 0,
-    backgroundColor: '#7B287D' // Color for top notch area
+    backgroundColor: '#7B287D'
   },
   safeAreaBottom: {
     flex: 0,
-    backgroundColor: '#F8FAFC' // Match bottom content background
+    backgroundColor: '#F8FAFC'
   },
   mainContent: {
     flex: 1,
-    // The ScrollView will handle its own background color
   },
   scrollContainer: {
     flex: 1,
-    backgroundColor: '#7B287D' // Top section color
+    backgroundColor: '#7B287D'
   },
   scrollContent: {
     flexGrow: 1
   },
   moodContainer: { 
-    backgroundColor: '#7B287D', // Purple background for top section
-    paddingTop: 10, // Adjust as needed
-    paddingBottom: 20, // Space before the white content starts
-    // Removed shadow as the content below will scroll over it
+    backgroundColor: '#7B287D',
+    paddingTop: 10,
+    paddingBottom: 50, // Increased padding for better spacing
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  waveContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 300,
+    overflow: 'hidden',
+  },
+  wave: {
+    position: 'absolute',
+    width: width,
+    height: 300,
+    borderRadius: width,
+  },
+  wave1: {
+    top: -150,
+    backgroundColor: '#B7C0EE',
+    opacity: 0.2,
+  },
+  wave2: {
+    top: -120,
+    backgroundColor: '#9067CF',
+    opacity: 0.15,
   },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', // Align items vertically
+    alignItems: 'center',
     paddingHorizontal: 20,
     marginBottom: 25,
-    marginTop: 10
+    marginTop: 10,
+    zIndex: 10,
   },
   greetingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly transparent white
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 25, // More rounded
+    borderRadius: 25,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
-    flex: 1, // Take available space
-    marginRight: 15 // Space before notification bell
+    flex: 1,
+    marginRight: 15
   },
   profileIconCircle: {
     width: 40,
@@ -671,54 +652,54 @@ const styles = StyleSheet.create({
     color: '#6B7280'
   },
   userInfo: {
-    flex: 1 // Allow text to take space but not push bell away
+    flex: 1
   },
   greetingText: { 
-    fontSize: 14, // Slightly smaller
-    fontWeight: '500', // Medium weight
-    color: '#4B5563' // Darker gray
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#4B5563'
   },
   userName: { 
-    fontSize: 16, // Slightly smaller
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#1F2937' // Almost black
+    color: '#1F2937'
   },
-  // Removed menuIcon styles
   notificationContainer: {
-    // Position relative to its parent
+    zIndex: 10,
   },
   notificationBell: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Match greeting card
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: 12,
-    borderRadius: 20, // Make it circular
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
-    position: 'relative' // Needed for the dot positioning
+    position: 'relative'
   },
   notificationIcon: { 
     fontSize: 20 
   },
    notificationDot: {
     position: 'absolute',
-    top: 6, // Adjust position
-    right: 6, // Adjust position
-    width: 10, // Slightly larger
+    top: 6,
+    right: 6,
+    width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#EF4444', // Brighter red
+    backgroundColor: '#EF4444',
     borderWidth: 1.5,
     borderColor: 'white'
   },
-  moodContent: { // Content within the purple section
+  moodContent: {
     alignItems: 'center',
     paddingHorizontal: 30,
-    paddingBottom: 10 // Space before the white part starts
+    paddingBottom: 10,
+    zIndex: 10,
   },
   moodTitle: {
-    fontSize: 28, // Maintain size
+    fontSize: 28,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
@@ -732,12 +713,12 @@ const styles = StyleSheet.create({
   },
   todayHighlight: {
     position: 'relative',
-    paddingBottom: 4 // Space for underline
+    paddingBottom: 4
   },
   moodTitleHighlight: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFD700', // Gold color for highlight
+    color: '#FFD700',
     textAlign: 'center',
     lineHeight: 36
   },
@@ -746,77 +727,43 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 3, // Slightly thinner underline
-    backgroundColor: '#FFD700', // Match highlight color
+    height: 3,
+    backgroundColor: '#FFD700',
     borderRadius: 2
   },
   moodSubText: { 
-    fontSize: 15, // Slightly smaller
-    color: 'rgba(255, 255, 255, 0.85)', // More subtle white
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
-    marginTop: 5 // Add some space above
+    marginTop: 5
   },
-  contentContainer: { // White area below the purple section
+  contentContainer: {
     flex: 1,
-    backgroundColor: '#F8FAFC', // Use the main background color
-    paddingTop: 25, // Space between purple and first card
-    borderTopLeftRadius: 30, // Curve the top edges
+    backgroundColor: '#F8FAFC',
+    paddingTop: 25,
+    borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    marginTop: -20, // Pull the white area up slightly into the purple
+    marginTop: -20,
     position: 'relative',
-    overflow: 'hidden'
-  },
-  contentWaveContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    overflow: 'hidden',
-    zIndex: 0,
-  },
-  contentWave: {
-    position: 'absolute',
-    width: width,
-    height: 200,
-    borderRadius: width,
-  },
-  contentWave1: {
-    top: -100,
-    backgroundColor: '#B7C0EE',
-    opacity: 0.15,
-  },
-  contentWave2: {
-    top: -80,
-    backgroundColor: '#7B287D',
-    opacity: 0.08,
   },
   card: {
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 16,
     marginHorizontal: 20,
-    marginBottom: 18, // Consistent spacing
-    shadowColor: '#4B5563', // Use a gray shadow color
+    marginBottom: 18,
+    shadowColor: '#4B5563',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08, // Subtle opacity
-    shadowRadius: 10, // Softer radius
-    elevation: 3, // Keep elevation for Android
-    zIndex: 1 // Ensure cards appear above wave background
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
-  cardTitle: {
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    textAlign: 'left', // Align left for card titles
-    color: '#330C2F' // Dark purple title
-  },
-  sectionYellowTitle: {
-    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'left',
-    color: '#F59E0B' // Yellow/gold color for section titles
+    color: '#1F2937', // Changed to black/dark gray
   },
   sectionTitleWrapper: {
     marginBottom: 15
@@ -827,13 +774,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
     flexWrap: 'wrap'
-  },
-  checkInHeader: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginBottom: 15,
-    flexWrap: 'wrap' // Allow wrapping on smaller screens
   },
   streakBadge: {
     flexDirection: 'row',
@@ -857,55 +797,54 @@ const styles = StyleSheet.create({
   calendarRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center', // Vertically center the circles
-    paddingHorizontal: 5, // Add some horizontal padding if needed
+    alignItems: 'center',
+    paddingHorizontal: 5,
   },
   dayCircle: {
     alignItems: 'center',
-    paddingVertical: 8, // Adjust vertical padding
-    borderRadius: 20, // Make circles more rounded
-    backgroundColor: '#F3F4F6', // Light gray background
-    width: 40, // Fixed width
-    height: 60, // Fixed height
-    justifyContent: 'space-between', // Space text and marker
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    width: 40,
+    height: 60,
+    justifyContent: 'space-between',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB', // Default subtle border
+    borderColor: '#E5E7EB',
   },
   dayCircleToday: {
-    borderColor: '#FDBA74', // Use a distinct orange border for today
-    backgroundColor: '#FFF7ED', // Very light orange background
+    borderColor: '#FDBA74',
+    backgroundColor: '#FFF7ED',
   },
   dayCircleActive: {
-    backgroundColor: '#7067CF', // Keep purple background when checked
-    borderColor: '#7067CF', // Match border to background
+    backgroundColor: '#7067CF',
+    borderColor: '#7067CF',
   },
   dayText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4B5563', // Darker gray text for better contrast
+    color: '#4B5563',
   },
-  dayTextActive: { // Style for text when circle is active OR today
-    color: 'white', // White text on purple background
+  dayTextActive: {
+    color: 'white',
   },
-  // Specific style for today's text *if not* active
   dayCircleTodayTextInactive: {
-     color: '#C2410C' // Dark orange text for today marker if not checked in
+     color: '#C2410C'
   },
-  checkIcon: { // Checkmark style
+  checkIcon: {
     fontSize: 16,
-    color: 'white', // White checkmark on purple background
+    color: 'white',
     fontWeight: 'bold',
   },
-  todayMarkerCircle: { // Dot marker for today (if not checked)
+  todayMarkerCircle: {
      width: 8,
      height: 8,
      borderRadius: 4,
-     backgroundColor: '#FB923C', // Brighter orange color for today dot marker
+     backgroundColor: '#FB923C',
   },
-  emptyDayMarker: { // Placeholder to maintain height and structure
+  emptyDayMarker: {
       width: 8,
       height: 8,
-      backgroundColor: 'transparent', // Make it invisible but take space
+      backgroundColor: 'transparent',
   },
   moodGrid: { 
     flexDirection: 'row', 
@@ -913,43 +852,43 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between' 
   },
   smallCard: { 
-    width: '48%', // Ensure two cards fit per row
-    backgroundColor: '#F9FAFB', // Very light gray background
+    width: '48%',
+    backgroundColor: '#F9FAFB',
     padding: 15, 
     borderRadius: 12, 
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB', // Subtle border
-    minHeight: 165, // Consistent height
-    justifyContent: 'space-between' // Space content vertically
+    borderColor: '#E5E7EB',
+    minHeight: 165,
+    justifyContent: 'space-between'
   },
   smallCardTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#330C2F', // Dark purple title
-    marginBottom: 5 // Reduced space
+    color: '#330C2F',
+    marginBottom: 5
   },
-  smallCardValue: { // General text inside small card
+  smallCardValue: {
     fontSize: 13,
-    color: '#6B7280', // Medium gray
-    marginBottom: 4, // Space below regular value
-    flexShrink: 1, // Allow text to shrink if needed
+    color: '#6B7280',
+    marginBottom: 4,
+    flexShrink: 1,
   },
-  smallCardValueBold: { // For emphasized values like Mood Label
+  smallCardValueBold: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#1F2937', // Darker text
+    color: '#1F2937',
     marginBottom: 2,
     flexShrink: 1,
   },
-  smallCardSubtitle: { // For subtitles like "RECENT TREND"
-    fontSize: 10, // Smaller text
+  smallCardSubtitle: {
+    fontSize: 10,
     fontWeight: 'bold',
-    color: '#9CA3AF', // Lighter gray
-    letterSpacing: 0.5, // Add spacing
+    color: '#9CA3AF',
+    letterSpacing: 0.5,
     marginBottom: 8
   },
-  circleIcon: { // Icons for the small cards
+  circleIcon: {
     width: 30, 
     height: 30, 
     borderRadius: 15, 
@@ -957,7 +896,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  circleIconSmall: { // Smaller icon for resource list
+  circleIconSmall: {
      width: 24, 
      height: 24, 
      borderRadius: 12, 
@@ -965,33 +904,31 @@ const styles = StyleSheet.create({
      alignItems: 'center',
      justifyContent: 'center',  
   },
-  // Removed moodChart and chartBar styles (placeholder)
-  taskListPreview: { // Container for task preview in small card
-    marginVertical: 5, // Space around the list
-    flex: 1 // Allow list to take available space
+  taskListPreview: {
+    marginVertical: 5,
+    flex: 1
   },
-  taskItem: { // Individual task item in preview
+  taskItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6 // Space between items
+    marginBottom: 6
   },
   taskCheckbox: {
     fontSize: 12,
     marginRight: 8,
-    color: '#9CA3AF' // Lighter checkbox color
+    color: '#9CA3AF'
   },
   taskText: {
-    fontSize: 13, // Slightly larger text
-    color: '#4B5563', // Darker gray
-    flex: 1 // Allow text to wrap/truncate
+    fontSize: 13,
+    color: '#4B5563',
+    flex: 1
   },
-  progressContainer: { // Container for progress bar in small card
-    // Removed marginBottom, handled by card spacing
-    flex: 1, // Take available space
-    justifyContent: 'center', // Center content vertically
+  progressContainer: {
+    flex: 1,
+    justifyContent: 'center',
     marginTop: 5,
   },
-   progressTextLarge: { // The main percentage text
+   progressTextLarge: {
      fontSize: 24,
      fontWeight: 'bold',
      color: '#330C2F',
@@ -999,43 +936,43 @@ const styles = StyleSheet.create({
      marginBottom: 8,
    },
   progressBar: { 
-    height: 6, // Thinner bar
+    height: 6,
     backgroundColor: '#E5E7EB', 
     borderRadius: 3, 
-    overflow: 'hidden' // Ensure fill stays within bounds
+    overflow: 'hidden'
   },
   progressFill: { 
     height: '100%', 
-    backgroundColor: '#7B287D', // Main purple color
+    backgroundColor: '#7B287D',
     borderRadius: 3,
   },
-  progressSubText: { // Text below progress bar
+  progressSubText: {
       fontSize: 11,
       color: '#6B7280',
       textAlign: 'center',
       marginTop: 6,
   },
-  viewMore: { // "View More" text at bottom of small cards
-    color: '#7067CF', // Link color
+  viewMore: {
+    color: '#7067CF',
     fontSize: 12,
     fontWeight: '600',
-    alignSelf: 'flex-end', // Align to the right
-    marginTop: 8 // Space above
+    alignSelf: 'flex-end',
+    marginTop: 8
   },
-  noDataText: { // Text when no tasks/moods are available
-    fontSize: 13, // Match task text size
-    color: '#9CA3AF', // Light gray
+  noDataText: {
+    fontSize: 13,
+    color: '#9CA3AF',
     fontStyle: 'italic',
-    textAlign: 'center', // Center align
-    marginTop: 10, // Add some top margin
+    textAlign: 'center',
+    marginTop: 10,
   },
-  resourceHeader: { // Header for resource card
+  resourceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 0 // Title already has margin bottom
+    marginBottom: 0
   },
-  resourceItem: { // Individual resource item row
+  resourceItem: {
     flexDirection: 'row', 
     alignItems: 'center', 
     backgroundColor: '#F9FAFB', 
@@ -1046,108 +983,107 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E7EB',
   },
-  resourceText: { // Text for the resource
-      flex: 1, // Take available space
+  resourceText: {
+      flex: 1,
       fontSize: 14,
       fontWeight: '500',
-      color: '#374151', // Dark gray text
+      color: '#374151',
   },
-  // Removed resourceScore and resourceBar styles (placeholders)
-  arrow: { // Arrow icon for navigation indication
-    fontSize: 18, // Slightly larger arrow
-    color: '#9CA3AF' // Light gray arrow
+  arrow: {
+    fontSize: 18,
+    color: '#9CA3AF'
   },
-  resourceIconEmoji: { // Style for emoji inside small circle
+  resourceIconEmoji: {
     fontSize: 14, 
   },
-  bottomPadding: { // Space at the very bottom of the scroll view
-    height: 100 // Ensure content clears bottom nav bar
+  bottomPadding: {
+    height: 100
   },
-  bottomNavContainer: { // Wrapper for the nav bar and center button
-    position: 'absolute', // Position at the bottom
-    bottom: 0, // Stick to the bottom
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 0,
     left: 0,
     right: 0,
-    alignItems: 'center', // Center the content horizontally
-    paddingBottom: 25, // Space from screen edge (adjust for safe area if needed)
-    paddingHorizontal: 20, // Side padding
+    alignItems: 'center',
+    paddingBottom: 25,
+    paddingHorizontal: 20,
   },
-  bottomNav: { // The main bar excluding the center button
+  bottomNav: {
     flexDirection: 'row', 
-    justifyContent: 'space-around', // Distribute icons evenly
-    alignItems: 'center', // Center icons vertically
-    backgroundColor: '#330C2F', // Dark purple background
-    borderRadius: 30, // Rounded corners
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#330C2F',
+    borderRadius: 30,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 }, // Adjust shadow
-    shadowOpacity: 0.2, // Adjust shadow
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
     shadowRadius: 10,
     elevation: 8,
-    width: '100%', // Take full width within padding
-    height: 65, // Fixed height for the bar
-    paddingHorizontal: 15, // Padding inside the bar
+    width: '100%',
+    height: 65,
+    paddingHorizontal: 15,
   },
-  navIconContainer: { // Wrapper for each icon for touch area and centering
-    flex: 1, // Each icon takes equal space
-    alignItems: 'center', // Center icon horizontally
-    justifyContent: 'center', // Center icon vertically
-    height: '100%', // Take full height of the bar
-    borderRadius: 25, // Rounded corners for potential active state background
-  },
-  activeNavContainer: { // Style for the active icon's container
-    backgroundColor: 'rgba(123, 40, 125, 0.3)', // Active background for selected tab
+  navIconContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
     borderRadius: 25,
   },
-  navIconText: { // Style for the icon emoji/text
-    fontSize: 24, // Icon size
-    color: '#A78BFA', // Lighter purple color for inactive icons
-    opacity: 0.8, // Slightly transparent inactive icons
+  activeNavContainer: {
+    backgroundColor: 'rgba(123, 40, 125, 0.3)',
+    borderRadius: 25,
   },
-  activeNavText: { // Style for the active icon emoji/text
-    color: '#FFFFFF', // White color for active icon
-    opacity: 1, // Fully opaque
+  navIconText: {
+    fontSize: 24,
+    color: '#A78BFA',
+    opacity: 0.8,
   },
-  centerNavSpacer: { // Invisible spacer to push side icons away from center
-    width: 70, // Match the width of the center button
+  activeNavText: {
+    color: '#FFFFFF',
+    opacity: 1,
   },
-  centerNavButton: { // The floating center button
-    position: 'absolute', // Position over the bar
-    bottom: 50, // Position relative to the bottomNavContainer bottom (adjust as needed)
-    width: 70, // Button size
+  centerNavSpacer: {
+    width: 70,
+  },
+  centerNavButton: {
+    position: 'absolute',
+    bottom: 50,
+    width: 70,
     height: 70,
-    borderRadius: 35, // Circular
-    backgroundColor: '#7067CF', // Accent purple color
+    borderRadius: 35,
+    backgroundColor: '#7067CF',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 }, // Adjust shadow
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 10,
-    borderWidth: 4, // White border
-    borderColor: '#F8FAFC' // Match the content background for seamless look
+    borderWidth: 4,
+    borderColor: '#F8FAFC'
   },
-  centerNavButtonActive: { // Style when the center button's screen is active
-    backgroundColor: '#A78BFA', // Lighter purple when active
-    transform: [{ scale: 1.05 }], // Slight scale effect
+  centerNavButtonActive: {
+    backgroundColor: '#A78BFA',
+    transform: [{ scale: 1.05 }],
   },
-  centerNavText: { // Icon inside the center button
-    fontSize: 28, // Icon size
-    color: 'white' // White icon
+  centerNavText: {
+    fontSize: 28,
+    color: 'white'
   },
-  loadingText: { // Text shown while loading data
+  loadingText: {
     textAlign: 'center', 
     color: '#6B7280', 
     marginTop: 20,
     fontSize: 14,
-    paddingBottom: 100, // Ensure visible above nav bar
+    paddingBottom: 100,
   },
-  errorText: { // Text shown on error
+  errorText: {
     textAlign: 'center', 
-    color: '#EF4444', // Red color for errors
+    color: '#EF4444',
     marginTop: 20,
     fontSize: 14,
-    paddingBottom: 100, // Ensure visible above nav bar
+    paddingBottom: 100,
   }
 });
 

@@ -36,7 +36,7 @@ export default function TaskCategories({ navigation }) {
   // Form state
   const [categoryName, setCategoryName] = useState('');
   const [categoryColor, setCategoryColor] = useState('#7B287D');
-  const [categoryIcon, setCategoryIcon] = useState('📋');
+  const [categoryIcon, setCategoryIcon] = useState('ðŸ“‹');
 
   const availableColors = [
     '#7B287D', '#686DE0', '#52C4B0', '#F79256', '#EF4444',
@@ -44,8 +44,8 @@ export default function TaskCategories({ navigation }) {
   ];
 
   const availableIcons = [
-    '💼', '🏠', '❤️', '📋', '🎯', '💪', '🧘', '📚', '🎨', '🎵',
-    '🏃', '🍎', '💻', '✈️', '🎮', '📱', '🌟', '⭐', '🔥', '✨'
+    'ðŸ’¼', 'ðŸ ', 'â¤ï¸', 'ðŸ“‹', 'ðŸŽ¯', 'ðŸ’ª', 'ðŸ§˜', 'ðŸ“š', 'ðŸŽ¨', 'ðŸŽµ',
+    'ðŸƒ', 'ðŸŽ', 'ðŸ’»', 'âœˆï¸', 'ðŸŽ®', 'ðŸ“±', 'ðŸŒŸ', 'â­', 'ðŸ”¥', 'âœ¨'
   ];
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function TaskCategories({ navigation }) {
   const handleAddCategory = () => {
     setCategoryName('');
     setCategoryColor('#7B287D');
-    setCategoryIcon('📋');
+    setCategoryIcon('ðŸ“‹');
     setAddModalVisible(true);
   };
 
@@ -169,14 +169,14 @@ export default function TaskCategories({ navigation }) {
         style={styles.deleteButton}
         onPress={() => handleDeleteCategory(item)}
       >
-        <Text style={styles.deleteIcon}>🗑️</Text>
+        <Text style={styles.deleteIcon}>ðŸ—‘ï¸</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyIcon}>📂</Text>
+      <Text style={styles.emptyIcon}>ðŸ“‚</Text>
       <Text style={styles.emptyText}>No categories yet</Text>
       <Text style={styles.emptySubtext}>Add your first category to get started</Text>
     </View>
@@ -260,7 +260,7 @@ export default function TaskCategories({ navigation }) {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Text style={styles.backIcon}>â€¹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Task Categories</Text>
         <TouchableOpacity style={styles.addButton} onPress={handleAddCategory}>
@@ -295,7 +295,7 @@ export default function TaskCategories({ navigation }) {
                   <View style={styles.modalHeader}>
                     <Text style={styles.modalTitle}>Add Category</Text>
                     <TouchableOpacity onPress={() => setAddModalVisible(false)}>
-                      <Text style={styles.modalClose}>✕</Text>
+                      <Text style={styles.modalClose}>âœ•</Text>
                     </TouchableOpacity>
                   </View>
 
@@ -340,7 +340,7 @@ export default function TaskCategories({ navigation }) {
                   <View style={styles.modalHeader}>
                     <Text style={styles.modalTitle}>Edit Category</Text>
                     <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-                      <Text style={styles.modalClose}>✕</Text>
+                      <Text style={styles.modalClose}>âœ•</Text>
                     </TouchableOpacity>
                   </View>
 
