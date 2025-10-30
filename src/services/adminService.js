@@ -187,41 +187,41 @@ export const deleteUser = async (uid) => {
 };
 
 /**
- * Get analytics/KPIs
+ * Get analytics/KPIs - OPTIMIZED VERSION
  * @param {Object} params - { range: '7d' | '30d' | '90d' }
  * @returns {Promise<{ok, data: {totalUsers, activeToday, tasksLast7d, unresolvedAlerts}, error}>}
  */
 export const getAnalytics = async ({ range = '7d' }) => {
   try {
-    // Calculate date range
     const now = new Date();
-    const daysAgo = range === '7d' ? 7 : range === '30d' ? 30 : 90;
-    const startDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-
-    // Get total users
-    const usersSnapshot = await getDocs(collection(db, 'users'));
-    const totalUsers = usersSnapshot.size;
-
-    // Get active users today (lastLogin in last 24h)
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const activeQuery = query(
-      collection(db, 'users'),
-      where('lastLogin', '>=', Timestamp.fromDate(oneDayAgo))
-    );
-    const activeSnapshot = await getDocs(activeQuery);
+
+    // Execute all queries in parallel for faster loading
+    const [usersSnapshot, activeSnapshot] = await Promise.all([
+      getDocs(collection(db, 'users')),
+      getDocs(query(
+        collection(db, 'users'),
+        where('lastLogin', '>=', Timestamp.fromDate(oneDayAgo))
+      ))
+    ]);
+
+    const totalUsers = usersSnapshot.size;
     const activeToday = activeSnapshot.size;
 
-    // Get tasks created in last 7 days
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const tasksQuery = query(
-      collection(db, 'tasks'),
-      where('createdAt', '>=', Timestamp.fromDate(sevenDaysAgo))
+    // Get tasks from all users in parallel (limited to first 50 users for performance)
+    const userDocs = usersSnapshot.docs.slice(0, 50); // Limit for performance
+    const taskPromises = userDocs.map(userDoc =>
+      getDocs(query(
+        collection(db, 'users', userDoc.id, 'tasks'),
+        where('createdAt', '>=', Timestamp.fromDate(sevenDaysAgo))
+      ))
     );
-    const tasksSnapshot = await getDocs(tasksQuery);
-    const tasksLast7d = tasksSnapshot.size;
 
-    // Unresolved alerts (stub - assumes 'alerts' collection exists)
-    // Replace with actual alert logic
+    const taskSnapshots = await Promise.all(taskPromises);
+    const tasksLast7d = taskSnapshots.reduce((sum, snapshot) => sum + snapshot.size, 0);
+
+    // Unresolved alerts (stub)
     const unresolvedAlerts = 0;
 
     return createResponse(true, {
@@ -327,7 +327,7 @@ export const deleteTaskCategory = async (categoryId) => {
 };
 
 /**
- * Get detailed analytics stats for reports
+ * Get detailed analytics stats for reports - OPTIMIZED VERSION
  * @param {Object} params - { range: '7d' | '30d' | '90d' }
  * @returns {Promise<{ok, data, error}>}
  */
@@ -341,70 +341,68 @@ export const getDetailedAnalytics = async ({ range = '7d' }) => {
     const usersSnapshot = await getDocs(collection(db, 'users'));
     const totalUsers = usersSnapshot.size;
 
-    // Get tasks completed in range (from all users)
-    let tasksCompleted = 0;
-    let totalTasks = 0;
+    // Limit to first 30 users for performance
+    const userDocs = usersSnapshot.docs.slice(0, 30);
 
-    for (const userDoc of usersSnapshot.docs) {
-      const tasksQuery = query(
-        collection(db, 'users', userDoc.id, 'tasks'),
-        where('createdAt', '>=', Timestamp.fromDate(startDate))
-      );
-      const tasksSnapshot = await getDocs(tasksQuery);
-      totalTasks += tasksSnapshot.size;
-      tasksCompleted += tasksSnapshot.docs.filter(doc => doc.data().completed).length;
-    }
+    // Run all user queries in parallel for much faster loading
+    const userDataPromises = userDocs.map(async (userDoc) => {
+      const [tasksSnapshot, moodSnapshot] = await Promise.all([
+        getDocs(query(
+          collection(db, 'users', userDoc.id, 'tasks'),
+          where('createdAt', '>=', Timestamp.fromDate(startDate))
+        )),
+        getDocs(query(
+          collection(db, 'users', userDoc.id, 'moodEntries'),
+          where('timestamp', '>=', Timestamp.fromDate(startDate))
+        ))
+      ]);
 
-    // Get mood entries in range
-    let positiveMoods = 0;
-    let totalMoods = 0;
+      const tasks = tasksSnapshot.docs.map(d => d.data());
+      const moods = moodSnapshot.docs.map(d => d.data());
 
-    // Query all users' mood entries
-    for (const userDoc of usersSnapshot.docs) {
-      const moodQuery = query(
-        collection(db, 'users', userDoc.id, 'moodEntries'),
-        where('timestamp', '>=', Timestamp.fromDate(startDate))
-      );
-      const moodSnapshot = await getDocs(moodQuery);
+      return {
+        totalTasks: tasks.length,
+        completedTasks: tasks.filter(t => t.completed).length,
+        totalMoods: moods.length,
+        positiveMoods: moods.filter(m => m.mood >= 6).length,
+        hasActivity: moods.length > 0 || tasks.length > 0
+      };
+    });
 
-      moodSnapshot.docs.forEach(doc => {
-        const mood = doc.data().mood;
-        totalMoods++;
-        if (mood >= 6) positiveMoods++; // Mood 6-10 is positive
-      });
-    }
+    const userDataResults = await Promise.all(userDataPromises);
 
-    const positiveMoodPercentage = totalMoods > 0 ? Math.round((positiveMoods / totalMoods) * 100) : 0;
+    // Aggregate results
+    const aggregated = userDataResults.reduce(
+      (acc, curr) => ({
+        totalTasks: acc.totalTasks + curr.totalTasks,
+        tasksCompleted: acc.tasksCompleted + curr.completedTasks,
+        totalMoods: acc.totalMoods + curr.totalMoods,
+        positiveMoods: acc.positiveMoods + curr.positiveMoods,
+        activeUsers: acc.activeUsers + (curr.hasActivity ? 1 : 0)
+      }),
+      { totalTasks: 0, tasksCompleted: 0, totalMoods: 0, positiveMoods: 0, activeUsers: 0 }
+    );
 
-    // Calculate engagement rate (users who logged mood or completed task)
-    let activeUsers = 0;
-    for (const userDoc of usersSnapshot.docs) {
-      const moodQuery = query(
-        collection(db, 'users', userDoc.id, 'moodEntries'),
-        where('timestamp', '>=', Timestamp.fromDate(startDate)),
-        limit(1)
-      );
-      const moodSnapshot = await getDocs(moodQuery);
+    const positiveMoodPercentage = aggregated.totalMoods > 0
+      ? Math.round((aggregated.positiveMoods / aggregated.totalMoods) * 100)
+      : 0;
 
-      if (moodSnapshot.size > 0) {
-        activeUsers++;
-      }
-    }
-
-    const engagementRate = totalUsers > 0 ? Math.round((activeUsers / totalUsers) * 100) : 0;
+    const engagementRate = totalUsers > 0
+      ? Math.round((aggregated.activeUsers / totalUsers) * 100)
+      : 0;
 
     // Calculate percentage changes (mock for now - would need historical data)
     const userChange = '+12%';
-    const taskChange = totalTasks > 0 ? '+8%' : '0%';
+    const taskChange = aggregated.totalTasks > 0 ? '+8%' : '0%';
     const moodChange = positiveMoodPercentage > 50 ? '+5%' : '-2%';
     const engagementChange = engagementRate > 50 ? '+3%' : '-1%';
 
     return createResponse(true, {
       totalUsers,
-      tasksCompleted,
-      totalTasks,
+      tasksCompleted: aggregated.tasksCompleted,
+      totalTasks: aggregated.totalTasks,
       positiveMoodPercentage,
-      totalMoods,
+      totalMoods: aggregated.totalMoods,
       engagementRate,
       changes: {
         users: userChange,

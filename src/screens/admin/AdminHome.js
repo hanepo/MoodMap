@@ -177,22 +177,6 @@ export default function AdminHome({ navigation }) {
 
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => navigation.navigate('TaskCategories')}
-          >
-            <View style={styles.actionLeft}>
-              <View style={[styles.actionIconContainer, { backgroundColor: '#686DE0' }]}>
-                <Text style={styles.actionIconText}>📂</Text>
-              </View>
-              <View>
-                <Text style={styles.actionTitle}>Task Categories</Text>
-                <Text style={styles.actionDescription}>Manage task types and categories</Text>
-              </View>
-            </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionCard}
             onPress={() => navigation.navigate('AnalyticsReports')}
           >
             <View style={styles.actionLeft}>

@@ -13,7 +13,10 @@
       "Bash(npx expo start:*)",
       "Bash(npx expo whoami)",
       "Bash(cat:*)",
-      "Bash(timeout /t 3 /nobreak)"
+      "Bash(timeout /t 3 /nobreak)",
+      "Bash(git rm:*)",
+      "Bash(git rebase:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

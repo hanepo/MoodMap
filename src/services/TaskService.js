@@ -5,10 +5,10 @@ export const TaskService = {
   // Create a new task
   createTask: async (userId, taskData) => {
     if (!userId) throw new Error('No user ID provided');
-    
+
     try {
       console.log(`Creating task: "${taskData.title}" for user ${userId}`);
-      
+
       const task = {
         title: taskData.title?.trim() || 'Untitled Task',
         description: taskData.description?.trim() || '',
@@ -22,9 +22,31 @@ export const TaskService = {
         isCustom: taskData.isCustom || false
       };
 
+      // Save to user's personal tasks subcollection
       const tasksRef = collection(db, 'users', userId, 'tasks');
       const docRef = await addDoc(tasksRef, task);
-      
+
+      // If this is a custom task, also add it to the global tasks collection
+      // so it can be recommended to other users
+      if (task.isCustom) {
+        const globalTaskData = {
+          title: task.title,
+          description: task.description,
+          category: task.category,
+          energyLevel: task.energyLevel.toLowerCase(), // Normalize to lowercase for consistent filtering
+          difficultyLevel: task.difficultyLevel,
+          associatedMood: task.associatedMood,
+          isCustom: true,
+          createdBy: userId,
+          createdAt: new Date(),
+          usageCount: 1 // Track how many times this task has been used
+        };
+
+        const globalTasksRef = collection(db, 'tasks');
+        await addDoc(globalTasksRef, globalTaskData);
+        console.log('✅ Custom task also added to global recommendations');
+      }
+
       // Update user's total tasks count
       const userRef = doc(db, 'users', userId);
       await updateDoc(userRef, {

@@ -24,7 +24,6 @@ import SimpleMoodHistoryScreen from './src/screens/SimpleMoodHistoryScreen';
 import SimpleTaskProgressScreen from './src/screens/SimpleTaskProgressScreen';
 import AdminHome from './src/screens/admin/AdminHome';
 import UserManagement from './src/screens/admin/UserManagement';
-import TaskCategories from './src/screens/admin/TaskCategories';
 import AnalyticsReports from './src/screens/admin/AnalyticsReports';
 import SystemLogs from './src/screens/admin/SystemLogs';
 import Documentation from './src/screens/admin/Documentation';
@@ -59,7 +58,6 @@ export default function App() {
           <Stack.Screen name="SimpleTaskProgress" component={SimpleTaskProgressScreen} />
           <Stack.Screen name="AdminHome" component={AdminHome} />
           <Stack.Screen name="UserManagement" component={UserManagement} />
-          <Stack.Screen name="TaskCategories" component={TaskCategories} />
           <Stack.Screen name="AnalyticsReports" component={AnalyticsReports} />
           <Stack.Screen name="SystemLogs" component={SystemLogs} />
           <Stack.Screen name="Documentation" component={Documentation} />

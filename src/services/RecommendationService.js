@@ -18,9 +18,12 @@ export const RecommendationService = {
 
     // 1. Prepare queries based on the data structure
     // We will query two different collections and merge them
+    // Normalize moodCategory to lowercase for consistent querying
+    const normalizedMoodCategory = moodCategory.toLowerCase();
+
     const taskQuery = query(
       collection(db, 'tasks'),
-      where('energyLevel', '==', moodCategory)
+      where('energyLevel', '==', normalizedMoodCategory)
     );
 
     const selfCareQuery = query(
